@@ -1,0 +1,120 @@
+{#
+Professional template note:
+    Template: cbs/templates/cbs/upload_rgcs_cbs.html
+    Purpose: renders part of the reconciliation system UI.
+    Keep business rules in Django views/services; use templates mainly for
+    forms, tables, filters, navigation links, and user-facing status messages.
+#}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload RGCS CBS File</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+            background: #f5f7fa;
+        }
+
+        .container {
+            width: 850px;
+            margin: auto;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 8px;
+        }
+
+        .file-box {
+            border: 2px dashed #999;
+            padding: 25px;
+            text-align: center;
+            background: #fafafa;
+            margin-bottom: 20px;
+        }
+
+        input[type="file"] {
+            display: block;
+            margin: 15px auto;
+        }
+
+        button {
+            padding: 10px 18px;
+            background: #2e86de;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .message {
+            padding: 10px;
+            margin-bottom: 15px;
+            background: #eef2f7;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>Upload RGCS CBS File</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    {# Filter/upload form starts here. The form values are submitted to the Django view for validation and processing. #}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <p>
+        <label><strong>Transaction Date:</strong></label><br>
+        {{ form.transaction_date }}
+    </p>
+    <p>
+        <label><strong>Select RGCS CBS File:</strong></label><br>
+        {{ form.rgcs_file }}
+    </p>
+
+    {% if form.rgcs_file.errors %}
+        <p style="color:red;">
+            {{ form.rgcs_file.errors }}
+        </p>
+    {% endif %}
+
+    <button type="submit">Upload File</button>
+</form>
+    {% if result %}
+        <h3>Upload Summary</h3>
+        <p><strong>File:</strong> {{ result.filename }}</p>
+        <p><strong>Status:</strong> {{ result.status }}</p>
+        <p><strong>Total Records:</strong> {{ result.total_records }}</p>
+        <p><strong>Total Errors:</strong> {{ result.total_errors }}</p>
+    {% endif %}
+
+    {% if errors %}
+        <h3>Errors</h3>
+        {# Report table starts here. Rows are generated from queryset/context data prepared in the view. #}
+<table border="1" cellpadding="8" cellspacing="0">
+            <tr>
+                <th>Line No.</th>
+                <th>Error</th>
+            </tr>
+
+            {% for err in errors %}
+                <tr>
+                    <td>{{ err.line_no }}</td>
+                    <td>{{ err.error }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+
+</div>
+
+</body>
+</html>

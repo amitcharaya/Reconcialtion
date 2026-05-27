@@ -1,0 +1,55 @@
+{#
+Professional template note:
+    Template: switchlog/templates/switchlog/upload_rgcs_switch.html
+    Purpose: renders part of the reconciliation system UI.
+    Keep business rules in Django views/services; use templates mainly for
+    forms, tables, filters, navigation links, and user-facing status messages.
+#}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload RGCS Switch File</title>
+</head>
+<body>
+
+<h2>Upload RGCS Switch Transactions</h2>
+
+{% if status %}
+    <h3>{{ status }}</h3>
+    <p>{{ message }}</p>
+{% endif %}
+
+{% if form.errors %}
+    <div style="color:red;">
+        {{ form.errors }}
+    </div>
+{% endif %}
+
+{% if errors %}
+    <h4>Errors</h4>
+    <ul>
+        {% for error in errors %}
+            <li>{{ error }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+{# Filter/upload form starts here. The form values are submitted to the Django view for validation and processing. #}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <p>
+        <label>Batch Date</label><br>
+        {{ form.batch_date }}
+    </p>
+
+    <p>
+        <label>RGCS Switch Excel File</label><br>
+        {{ form.switch_file }}
+    </p>
+
+    <button type="submit">Upload RGCS Switch File</button>
+</form>
+
+</body>
+</html>

@@ -1,0 +1,53 @@
+{#
+Professional template note:
+    Template: switchlog/templates/switchlog/upload_switch_imps.html
+    Purpose: renders part of the reconciliation system UI.
+    Keep business rules in Django views/services; use templates mainly for
+    forms, tables, filters, navigation links, and user-facing status messages.
+#}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Switch IMPS File</title>
+</head>
+<body>
+
+<h2>Upload Switch IMPS Excel File</h2>
+
+{% if messages %}
+    {% for message in messages %}
+        <p style="color: {% if message.tags == 'success' %}green{% else %}red{% endif %};">
+            {{ message }}
+        </p>
+    {% endfor %}
+{% endif %}
+
+{# Filter/upload form starts here. The form values are submitted to the Django view for validation and processing. #}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <button type="submit">Upload</button>
+</form>
+
+{% if success_count %}
+    <h3>Upload Summary</h3>
+    <p>Total Successful Records: {{ success_count }}</p>
+{% endif %}
+
+{% if errors %}
+    <h3>Errors</h3>
+    <ul>
+        {% for error in errors %}
+            <li>{{ error }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+{% if error %}
+    <h3>Error</h3>
+    <p>{{ error }}</p>
+{% endif %}
+
+</body>
+</html>

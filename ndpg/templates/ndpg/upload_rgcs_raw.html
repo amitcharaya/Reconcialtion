@@ -1,0 +1,76 @@
+{#
+Professional template note:
+    Template: ndpg/templates/ndpg/upload_rgcs_raw.html
+    Purpose: renders part of the reconciliation system UI.
+    Keep business rules in Django views/services; use templates mainly for
+    forms, tables, filters, navigation links, and user-facing status messages.
+#}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload RGCS Raw Files</title>
+
+</head>
+<body>
+
+<h2>Upload RGCS Raw Data Files</h2>
+
+{% if status %}
+    <h3>{{ status }}</h3>
+    <p>{{ message }}</p>
+{% endif %}
+
+{% if form.errors %}
+    <div style="color:red;">
+        {{ form.errors }}
+    </div>
+{% endif %}
+
+{% if errors %}
+    <h4>Errors</h4>
+    <ul>
+        {% for error in errors %}
+            <li>{{ error }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+{# Filter/upload form starts here. The form values are submitted to the Django view for validation and processing. #}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <p>
+        <label>Batch Date</label><br>
+        {{ form.batch_date }}
+    </p>
+
+    <p>
+        <label>Record Nature</label><br>
+        {{ form.record_nature }}
+    </p>
+
+    <p>
+        <label>861 File</label><br>
+        {{ form.file_861 }}
+    </p>
+
+    <p>
+        <label>862 File</label><br>
+        {{ form.file_862 }}
+    </p>
+
+    <p>
+        <label>863 File</label><br>
+        {{ form.file_863 }}
+    </p>
+
+    <p>
+        <label>864 File</label><br>
+        {{ form.file_864 }}
+    </p>
+
+    <button type="submit">Upload RGCS Files</button>
+</form>
+
+</body>
+</html>

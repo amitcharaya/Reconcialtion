@@ -1,0 +1,39 @@
+{#
+Professional template note:
+    Template: ndpg/templates/ndpg/upload.html
+    Purpose: renders part of the reconciliation system UI.
+    Keep business rules in Django views/services; use templates mainly for
+    forms, tables, filters, navigation links, and user-facing status messages.
+#}
+ndpg/templates/ndpg/upload.html
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NDPG Upload</title>
+</head>
+<body>
+
+<h1>Upload NDPG Daily Files</h1>
+
+{# Filter/upload form starts here. The form values are submitted to the Django view for validation and processing. #}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <button type="submit">Upload All Cycles</button>
+</form>
+
+{% if summary %}
+    <hr>
+
+    <h2>{{ summary.message }}</h2>
+
+    {% if summary.status == "success" %}
+        <p>Total Records Saved: {{ summary.total_records }}</p>
+    {% endif %}
+
+{% endif %}
+
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!--{#
+Professional template note:
+    Template: mis_dashboard/templates/mis_dashboard/home.html
+    Purpose: renders part of the reconciliation system UI.
+    Keep business rules in Django views/services; use templates mainly for
+    forms, tables, filters, navigation links, and user-facing status messages.
+#}-->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reconciliation Home</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background: #f4f6f9; color: #2c3e50; }
+        .page { max-width: 1200px; margin: auto; padding: 25px; }
+        .top { background: white; padding: 22px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.08); margin-bottom: 22px; }
+        .date-form { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+        input[type=date] { padding: 10px; border: 1px solid #ccc; border-radius: 6px; }
+        button, .btn { background: #2c3e50; color: white; border: 0; border-radius: 6px; padding: 10px 14px; text-decoration: none; display: inline-block; cursor: pointer; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 18px; }
+        .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+        .card h2 { margin-top: 0; }
+        .progress { height: 10px; background: #e9edf2; border-radius: 20px; overflow: hidden; margin: 10px 0 18px; }
+        .bar { height: 100%; background: #27ae60; }
+        .step { border: 1px solid #e3e7ee; border-radius: 10px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+        .done { border-color: #bde5c8; background: #f1fbf4; }
+        .pending { border-color: #f3d3a2; background: #fff8ed; }
+        .badge { padding: 5px 9px; border-radius: 14px; font-size: 12px; font-weight: bold; }
+        .badge.done { background: #27ae60; color: white; border: none; }
+        .badge.pending { background: #f39c12; color: white; border: none; }
+        .next { background: #eef2f7; border-left: 4px solid #2c3e50; padding: 12px; margin: 15px 0; }
+        .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top: 12px; }
+        .btn.secondary { background:#566573; }
+        .btn.success { background:#229954; }
+        .disabled { pointer-events: none; opacity: .45; }
+    </style>
+</head>
+<body>
+<div class="page">
+    <div class="top">
+        <h1>Reconciliation Upload Home</h1>
+        {# Filter/upload form starts here. The form values are submitted to the Django view for validation and processing. #}
+<form method="get" class="date-form">
+            <label><strong>Select Upload / Reconciliation Date</strong></label>
+            <input type="date" name="transaction_date" value="{{ selected_date }}" required>
+            <button type="submit">Show Status</button>
+            <a class="btn secondary" href="{% url 'mis_dashboard:upload_monitoring' %}?from_date={{ selected_date }}&to_date={{ selected_date }}">Upload MIS</a>
+        </form>
+    </div>
+
+    <div class="grid">
+        {% for item in workflows %}
+        <div class="card">
+            <h2>{{ item.title }}</h2>
+            <p><strong>Date:</strong> {{ selected_date }} | <strong>Status:</strong> {{ item.completed_count }}/3 uploads complete</p>
+            <div class="progress">
+                <div class="bar" style="width: {% widthratio item.completed_count 3 100 %}%"></div>
+            </div>
+
+            {% for step in item.steps %}
+            <div class="step {% if step.completed %}done{% else %}pending{% endif %}">
+                <div>
+                    <strong>{{ step.source }} File</strong><br>
+                    <span>{{ step.status_text }}</span>
+                </div>
+                {% if step.completed %}
+                    <span class="badge done">Complete</span>
+                {% else %}
+                    <a class="btn" href="{{ step.url }}">Upload {{ step.source }}</a>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <div class="next"><strong>Next Step:</strong> {{ item.next_action }}</div>
+
+            <div class="actions">
+                <a class="btn secondary" href="{{ item.dashboard_url }}">Open Dashboard</a>
+                <a class="btn success {% if not item.all_uploaded %}disabled{% endif %}" href="{{ item.reconcile_url }}">Start Reconciliation</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+</body>
+</html>

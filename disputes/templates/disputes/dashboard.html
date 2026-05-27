@@ -1,0 +1,106 @@
+{#
+Professional template note:
+    Template: disputes/templates/disputes/dashboard.html
+    Purpose: renders part of the reconciliation system UI.
+    Keep business rules in Django views/services; use templates mainly for
+    forms, tables, filters, navigation links, and user-facing status messages.
+#}
+<h1>Dispute Dashboard</h1>
+
+<h2>Summary</h2>
+
+<p>Total Cases: {{ summary.total }}</p>
+<p>Open Cases: {{ summary.open }}</p>
+<p>Closed Cases: {{ summary.closed }}</p>
+<p>ATM Cases: {{ summary.atm_total }}</p>
+<p>RGCS Cases: {{ summary.rgcs_total }}</p>
+<p>IMPS Cases: {{ summary.imps_total }}</p>
+
+<hr>
+
+<h2>ATM Dispute Cases</h2>
+
+{# Report table starts here. Rows are generated from queryset/context data prepared in the view. #}
+<table border="1">
+    <tr>
+        <th>Date</th>
+        <th>STAN</th>
+        <th>RRN</th>
+        <th>Amount</th>
+        <th>Status</th>
+        <th>Case Status</th>
+        <th>Reason</th>
+    </tr>
+
+    {% for case in atm_cases %}
+    <tr>
+        <td>{{ case.transaction_date }}</td>
+        <td>{{ case.stan_no }}</td>
+        <td>{{ case.rrn }}</td>
+        <td>{{ case.disputed_amount }}</td>
+        <td>{{ case.source_status }}</td>
+        <td>{{ case.case_status }}</td>
+        <td>{{ case.dispute_reason }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="7">No ATM disputes found.</td></tr>
+    {% endfor %}
+</table>
+
+<hr>
+
+<h2>RGCS Dispute Cases</h2>
+
+<table border="1">
+    <tr>
+        <th>Date</th>
+        <th>RRN</th>
+        <th>Amount</th>
+        <th>Status</th>
+        <th>Case Status</th>
+        <th>Reason</th>
+    </tr>
+
+    {% for case in rgcs_cases %}
+    <tr>
+        <td>{{ case.transaction_date }}</td>
+        <td>{{ case.rrn }}</td>
+        <td>{{ case.disputed_amount }}</td>
+        <td>{{ case.source_status }}</td>
+        <td>{{ case.case_status }}</td>
+        <td>{{ case.dispute_reason }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="6">No RGCS disputes found.</td></tr>
+    {% endfor %}
+</table>
+
+<hr>
+
+<h2>IMPS Dispute Cases</h2>
+
+<table border="1">
+    <tr>
+        <th>Date</th>
+        <th>Transaction Serial No.</th>
+        <th>RRN</th>
+        <th>Amount</th>
+        <th>Status</th>
+        <th>Case Status</th>
+        <th>Reason</th>
+    </tr>
+
+    {% for case in imps_cases %}
+    <tr>
+        <td>{{ case.transaction_date }}</td>
+        <td>{{ case.transaction_serial_number }}</td>
+        <td>{{ case.rrn }}</td>
+        <td>{{ case.disputed_amount }}</td>
+        <td>{{ case.source_status }}</td>
+        <td>{{ case.case_status }}</td>
+        <td>{{ case.dispute_reason }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="7">No IMPS disputes found.</td></tr>
+    {% endfor %}
+</table>

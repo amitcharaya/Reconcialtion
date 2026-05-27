@@ -1,0 +1,289 @@
+<!--{#
+Professional template note:
+    Template: mis_dashboard/templates/mis_dashboard/rgcs_dashboard.html
+    Purpose: renders part of the reconciliation system UI.
+    Keep business rules in Django views/services; use templates mainly for
+    forms, tables, filters, navigation links, and user-facing status messages.
+#}-->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RGCS Dashboard</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            padding: 20px;
+        }
+
+        .nav-links {
+            margin-bottom: 20px;
+        }
+
+        .nav-links a {
+            display: inline-block;
+            background: #2c3e50;
+            color: white;
+            padding: 9px 14px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-right: 8px;
+        }
+
+        .filter-box {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 18px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .card h3 {
+            margin: 0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .card p {
+            font-size: 26px;
+            font-weight: bold;
+            margin: 10px 0 0;
+            color: #2c3e50;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            margin-bottom: 25px;
+        }
+
+        th {
+            background: #2c3e50;
+            color: white;
+            padding: 10px;
+            text-align: left;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        button {
+            background: #2c3e50;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>RGCS MIS Dashboard</h1>
+
+<div class="nav-links">
+    <a href="{% url 'mis_dashboard:dashboard' %}">ATM Dashboard</a>
+    <a href="{% url 'mis_dashboard:rgcs_dashboard' %}">RGCS Dashboard</a>
+    <a href="{% url 'mis_dashboard:rgcs_reconciliation_report' %}">RGCS Reconciliation Report</a>
+    <a href="{% url 'mis_dashboard:reconciliation_report' %}">ATM Reconciliation Report</a>
+</div>
+
+<div class="filter-box">
+    {# Filter/upload form starts here. The form values are submitted to the Django view for validation and processing. #}
+<form method="get">
+        <label>From Date:</label>
+        <input type="date" name="from_date" value="{{ selected_from_date|default:'' }}">
+
+        <label>To Date:</label>
+        <input type="date" name="to_date" value="{{ selected_to_date|default:'' }}">
+
+        <button type="submit">Filter</button>
+
+        <a href="{% url 'mis_dashboard:rgcs_dashboard' %}">Reset</a>
+    </form>
+</div>
+
+<div class="cards">
+    <div class="card">
+        <h3>CBS Transactions</h3>
+        <p>{{ summary.cbs_count }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Switch Transactions</h3>
+        <p>{{ summary.switch_count }}</p>
+    </div>
+
+    <div class="card">
+        <h3>NDPG Transactions</h3>
+        <p>{{ summary.ndpg_count }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Total Reconciled</h3>
+        <p>{{ summary.total_reconciled }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Matched</h3>
+        <p>{{ summary.matched }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Unmatched</h3>
+        <p>{{ summary.unmatched }}</p>
+    </div>
+
+    <div class="card">
+        <h3>CBS Amount</h3>
+        <p>{{ summary.cbs_amount }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Switch Amount</h3>
+        <p>{{ summary.switch_amount }}</p>
+    </div>
+
+    <div class="card">
+        <h3>NDPG Amount</h3>
+        <p>{{ summary.ndpg_amount }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Financial Exposure</h3>
+        <p>{{ summary.financial_exposure }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Total Disputes</h3>
+        <p>{{ summary.total_disputes }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Open Disputes</h3>
+        <p>{{ summary.open_disputes }}</p>
+    </div>
+</div>
+
+<h2>RGCS Upload Summary</h2>
+
+{# Report table starts here. Rows are generated from queryset/context data prepared in the view. #}
+<table>
+    <tr>
+        <th>Source</th>
+        <th>Total Uploads</th>
+        <th>Total Records</th>
+    </tr>
+
+    <tr>
+        <td>CBS</td>
+        <td>{{ upload_summary.cbs_uploads }}</td>
+        <td>{{ upload_summary.cbs_records }}</td>
+    </tr>
+
+    <tr>
+        <td>Switch</td>
+        <td>{{ upload_summary.switch_uploads }}</td>
+        <td>{{ upload_summary.switch_records }}</td>
+    </tr>
+
+    <tr>
+        <td>NDPG</td>
+        <td>{{ upload_summary.ndpg_uploads }}</td>
+        <td>{{ upload_summary.ndpg_records }}</td>
+    </tr>
+</table>
+
+<h2>RGCS Reconciliation Status Summary</h2>
+
+<table>
+    <tr>
+        <th>Status</th>
+        <th>Total Count</th>
+        <th>CBS Amount</th>
+        <th>Switch Amount</th>
+        <th>NDPG Amount</th>
+    </tr>
+
+    {% for row in status_summary %}
+    <tr>
+        <td>{{ row.status }}</td>
+        <td>{{ row.total }}</td>
+        <td>{{ row.cbs_amount|default:0 }}</td>
+        <td>{{ row.switch_amount|default:0 }}</td>
+        <td>{{ row.ndpg_amount|default:0 }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="5">No RGCS reconciliation data found.</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<h2>RGCS Disputes Created for Selected Date Range</h2>
+
+<table>
+    <tr>
+        <th>Case Status</th>
+        <th>Total Cases</th>
+        <th>Amount</th>
+    </tr>
+    {% for row in dispute_status_summary %}
+    <tr>
+        <td>{{ row.case_status }}</td>
+        <td>{{ row.total }}</td>
+        <td>{{ row.amount|default:0 }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="3">No RGCS disputes found for selected date range.</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<h2>Recent RGCS Dispute Cases</h2>
+
+<table>
+    <tr>
+        <th>Date</th>
+        <th>RRN</th>
+        <th>Amount</th>
+        <th>Status</th>
+        <th>Reason</th>
+        <th>Case Status</th>
+    </tr>
+    {% for row in recent_disputes %}
+    <tr>
+        <td>{{ row.transaction_date }}</td>
+        <td>{{ row.rrn }}</td>
+        <td>{{ row.disputed_amount }}</td>
+        <td>{{ row.source_status }}</td>
+        <td>{{ row.dispute_reason }}</td>
+        <td>{{ row.case_status }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="6">No recent RGCS disputes found.</td>
+    </tr>
+    {% endfor %}
+</table>
+
+</body>
+</html>

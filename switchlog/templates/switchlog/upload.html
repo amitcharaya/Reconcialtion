@@ -1,0 +1,52 @@
+{#
+Professional template note:
+    Template: switchlog/templates/switchlog/upload.html
+    Purpose: renders part of the reconciliation system UI.
+    Keep business rules in Django views/services; use templates mainly for
+    forms, tables, filters, navigation links, and user-facing status messages.
+#}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Switch Log Upload</title>
+</head>
+<body>
+
+<h1>Upload Switch Log File</h1>
+
+{# Filter/upload form starts here. The form values are submitted to the Django view for validation and processing. #}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <button type="submit">Upload Switch Log</button>
+</form>
+
+{% if summary %}
+    <hr>
+    <h2>{{ summary.message }}</h2>
+
+    {% if summary.status == "success" %}
+        <p>Total Records Saved: {{ summary.total_records }}</p>
+    {% endif %}
+
+    {% if summary.errors %}
+        {# Report table starts here. Rows are generated from queryset/context data prepared in the view. #}
+<table border="1" cellpadding="5">
+            <tr>
+                <th>Row</th>
+                <th>Error</th>
+            </tr>
+
+            {% for error in summary.errors %}
+            <tr>
+                <td>{{ error.row }}</td>
+                <td>{{ error.error }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+{% endif %}
+
+</body>
+</html>

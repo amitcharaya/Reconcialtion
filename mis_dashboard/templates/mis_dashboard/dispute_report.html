@@ -1,0 +1,262 @@
+<!--{#
+Professional template note:
+    Template: mis_dashboard/templates/mis_dashboard/dispute_report.html
+    Purpose: renders part of the reconciliation system UI.
+    Keep business rules in Django views/services; use templates mainly for
+    forms, tables, filters, navigation links, and user-facing status messages.
+#}-->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dispute Report</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .nav-links {
+            margin-bottom: 20px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            background: #2c3e50;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            margin-right: 8px;
+            font-size: 14px;
+        }
+
+        .filter-box {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background: #2980b9;
+            color: white;
+            border: none;
+            padding: 9px 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 21px;
+        }
+
+        .download-btn {
+            background: #27ae60;
+            color: white;
+            padding: 9px 14px;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 15px;
+        }
+
+        .table-box {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1100px;
+        }
+
+        th {
+            background: #2c3e50;
+            color: white;
+            padding: 10px;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        td {
+            padding: 9px;
+            border-bottom: 1px solid #ddd;
+            font-size: 13px;
+        }
+
+        .count {
+            margin-bottom: 10px;
+            color: #555;
+            font-weight: bold;
+        }
+
+        .open {
+            color: #c0392b;
+            font-weight: bold;
+        }
+
+        .closed {
+            color: #27ae60;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>Dispute Report</h1>
+<p class="subtitle">Filtered dispute register for follow-up and audit</p>
+
+<div class="nav-links">
+    <a href="{% url 'mis_dashboard:dashboard' %}">Dashboard</a>
+    <a href="{% url 'mis_dashboard:reconciliation_report' %}">Reconciliation Report</a>
+</div>
+
+<div class="filter-box">
+    {# Filter/upload form starts here. The form values are submitted to the Django view for validation and processing. #}
+<form method="get">
+        <div class="filter-grid">
+
+            <div>
+                <label>From Date</label>
+                <input type="date" name="from_date" value="{{ selected_from_date|default:'' }}">
+            </div>
+
+            <div>
+                <label>To Date</label>
+                <input type="date" name="to_date" value="{{ selected_to_date|default:'' }}">
+            </div>
+
+            <div>
+                <label>Case Status</label>
+                <select name="case_status">
+                    <option value="">All Status</option>
+
+                    {% for value in case_status_choices %}
+                        <option value="{{ value }}"
+                            {% if selected_case_status == value %}selected{% endif %}>
+                            {{ value }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label>STAN</label>
+                <input type="text" name="stan" value="{{ selected_stan|default:'' }}">
+            </div>
+
+            <div>
+                <label>RRN</label>
+                <input type="text" name="rrn" value="{{ selected_rrn|default:'' }}">
+            </div>
+
+            <div>
+                <button type="submit">Filter</button>
+            </div>
+
+        </div>
+    </form>
+
+    <a class="download-btn"
+       href="{% url 'mis_dashboard:download_dispute_excel' %}?from_date={{ selected_from_date|default:'' }}&to_date={{ selected_to_date|default:'' }}&case_status={{ selected_case_status|default:'' }}&stan={{ selected_stan|default:'' }}&rrn={{ selected_rrn|default:'' }}">
+        Download Excel
+    </a>
+</div>
+
+<div class="table-box">
+
+    <div class="count">
+        Total Disputes: {{ disputes.count }}
+    </div>
+
+    {# Report table starts here. Rows are generated from queryset/context data prepared in the view. #}
+<table>
+        <thead>
+            <tr>
+                <th>Transaction Date</th>
+                <th>STAN</th>
+                <th>RRN</th>
+                <th>Account No</th>
+                <th>Disputed Amount</th>
+                <th>Source Status</th>
+                <th>Dispute Reason</th>
+                <th>Case Status</th>
+                <th>Assigned To</th>
+                <th>Remarks</th>
+                <th>Created At</th>
+                <th>Updated At</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for row in disputes %}
+            <tr>
+                <td>{{ row.transaction_date }}</td>
+                <td>{{ row.stan_no|default:"-" }}</td>
+                <td>{{ row.rrn|default:"-" }}</td>
+                <td>{{ row.account_no|default:"-" }}</td>
+                <td>₹ {{ row.disputed_amount|default:0 }}</td>
+                <td>{{ row.source_status|default:"-" }}</td>
+                <td>{{ row.dispute_reason|default:"-" }}</td>
+
+                <td>
+                    {% if row.case_status == "OPEN" %}
+                        <span class="open">{{ row.case_status }}</span>
+                    {% elif row.case_status == "CLOSED" %}
+                        <span class="closed">{{ row.case_status }}</span>
+                    {% else %}
+                        {{ row.case_status }}
+                    {% endif %}
+                </td>
+
+                <td>{{ row.assigned_to|default:"-" }}</td>
+                <td>{{ row.remarks|default:"-" }}</td>
+                <td>{{ row.created_at }}</td>
+                <td>{{ row.updated_at }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="12">No dispute records found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,42 @@
+{#
+Professional template note:
+    Template: reconciliation/templates/reconciliation/reconcile.html
+    Purpose: renders part of the reconciliation system UI.
+    Keep business rules in Django views/services; use templates mainly for
+    forms, tables, filters, navigation links, and user-facing status messages.
+#}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ATM Reconciliation</title>
+</head>
+<body>
+
+<h1>ATM Three-Way Reconciliation</h1>
+
+{# Filter/upload form starts here. The form values are submitted to the Django view for validation and processing. #}
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <button type="submit">Run Reconciliation</button>
+</form>
+
+{% if summary %}
+    <hr>
+
+    <h2>Reconciliation Summary</h2>
+
+    <p>Total Records: {{ summary.total }}</p>
+    <p>Dispute Created: {{ summary.disputes_created }}</p>
+    <p>Matched in All Sources: {{ summary.matched_all }}</p>
+    <p>CBS Only: {{ summary.cbs_only }}</p>
+    <p>NDPG Only: {{ summary.ndpg_only }}</p>
+    <p>Switch Only: {{ summary.switch_only }}</p>
+    <p>CBS + NDPG Only: {{ summary.cbs_ndpg_only }}</p>
+    <p>CBS + Switch Only: {{ summary.cbs_switch_only }}</p>
+    <p>NDPG + Switch Only: {{ summary.ndpg_switch_only }}</p>
+{% endif %}
+
+</body>
+</html>

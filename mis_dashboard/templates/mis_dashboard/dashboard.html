@@ -1,0 +1,572 @@
+<!--{#
+Professional template note:
+    Template: mis_dashboard/templates/mis_dashboard/dashboard.html
+    Purpose: renders part of the reconciliation system UI.
+    Keep business rules in Django views/services; use templates mainly for
+    forms, tables, filters, navigation links, and user-facing status messages.
+#}-->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ATM Reconciliation MIS Dashboard</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .nav-links {
+            margin-bottom: 25px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            background: #2c3e50;
+            color: white;
+            padding: 9px 14px;
+            border-radius: 5px;
+            margin-right: 8px;
+            font-size: 14px;
+        }
+
+        .filter-form {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-form label {
+            font-size: 14px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .filter-form input {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .filter-form button {
+            background: #2980b9;
+            color: white;
+            border: none;
+            padding: 9px 14px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .clear-link {
+            text-decoration: none;
+            color: #2980b9;
+            font-weight: bold;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 18px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .card h3 {
+            margin: 0;
+            font-size: 14px;
+            color: #777;
+        }
+
+        .card p {
+            margin: 10px 0 0;
+            font-size: 28px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow-x: auto;
+        }
+
+        .chart-box {
+            height: 350px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            min-width: 850px;
+        }
+
+        th {
+            background: #2c3e50;
+            color: white;
+            padding: 10px;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        .badge-open {
+            color: #c0392b;
+            font-weight: bold;
+        }
+
+        .badge-closed {
+            color: #27ae60;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>ATM Reconciliation MIS Dashboard</h1>
+<p class="subtitle">Management summary for reconciliation, exceptions, and disputes</p>
+
+<div class="section">
+    <h2>Dashboard Date Filter</h2>
+
+    {# Filter/upload form starts here. The form values are submitted to the Django view for validation and processing. #}
+<form method="get" class="filter-form">
+        <label>From Date</label>
+        <input type="date" name="from_date" value="{{ selected_from_date|default:'' }}">
+
+        <label>To Date</label>
+        <input type="date" name="to_date" value="{{ selected_to_date|default:'' }}">
+
+        <button type="submit">Apply Filter</button>
+
+        <a href="{% url 'mis_dashboard:dashboard' %}" class="clear-link">
+            Clear Filter
+        </a>
+    </form>
+</div>
+
+<div class="nav-links">
+    <a href="{% url 'mis_dashboard:reconciliation_report' %}?from_date={{ selected_from_date|default:'' }}&to_date={{ selected_to_date|default:'' }}">
+        Reconciliation Report
+    </a>
+
+    <a href="{% url 'mis_dashboard:dispute_report' %}?from_date={{ selected_from_date|default:'' }}&to_date={{ selected_to_date|default:'' }}">
+        Dispute Report
+    </a>
+    <a href="{% url 'mis_dashboard:upload_monitoring' %}?from_date={{ selected_from_date|default:'' }}&to_date={{ selected_to_date|default:'' }}">
+    Upload Monitoring
+</a>
+<a href="{% url 'mis_dashboard:rgcs_dashboard' %}">
+    RGCS Dashboard
+</a>
+    <a href="{% url 'mis_dashboard:rgcs_reconciliation_report' %}">
+    RGCS Reconciliation Report
+</a>
+</div>
+
+<div class="cards">
+    <div class="card">
+        <h3>Total Reconciliation Records</h3>
+        <p>{{ summary.total_reconciliation|default:0 }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Matched Transactions</h3>
+        <p>{{ summary.matched|default:0 }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Unmatched / Exceptions</h3>
+        <p>{{ summary.unmatched|default:0 }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Total Dispute Cases</h3>
+        <p>{{ summary.total_disputes|default:0 }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Open Disputes</h3>
+        <p>{{ summary.open_disputes|default:0 }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Open Financial Exposure</h3>
+        <p>₹ {{ summary.financial_exposure|default:0 }}</p>
+    </div>
+</div>
+
+<div class="section">
+    <h2>Source-wise Financial MIS</h2>
+
+    {# Report table starts here. Rows are generated from queryset/context data prepared in the view. #}
+<table>
+        <thead>
+            <tr>
+                <th>Source</th>
+                <th>Transaction Type</th>
+                <th>Debit / Success Amount</th>
+                <th>Credit / Reversal Amount</th>
+                <th>Net Amount</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr>
+                <td>CBS</td>
+                <td>Acquirer</td>
+                <td>₹ {{ source_financial_summary.cbs.acquirer.debit|default:0 }}</td>
+                <td>₹ {{ source_financial_summary.cbs.acquirer.credit|default:0 }}</td>
+                <td>₹ {{ source_financial_summary.cbs.acquirer.net|default:0 }}</td>
+            </tr>
+
+            <tr>
+                <td>CBS</td>
+                <td>Issuer</td>
+                <td>₹ {{ source_financial_summary.cbs.issuer.debit|default:0 }}</td>
+                <td>₹ {{ source_financial_summary.cbs.issuer.credit|default:0 }}</td>
+                <td>₹ {{ source_financial_summary.cbs.issuer.net|default:0 }}</td>
+            </tr>
+
+            <tr>
+                <td>CBS</td>
+                <td>On-Us</td>
+                <td>₹ {{ source_financial_summary.cbs.onus.debit|default:0 }}</td>
+                <td>₹ {{ source_financial_summary.cbs.onus.credit|default:0 }}</td>
+                <td>₹ {{ source_financial_summary.cbs.onus.net|default:0 }}</td>
+            </tr>
+
+            <tr>
+                <td><strong>CBS</strong></td>
+                <td><strong>Total</strong></td>
+                <td><strong>₹ {{ source_financial_summary.cbs.total.debit|default:0 }}</strong></td>
+                <td><strong>₹ {{ source_financial_summary.cbs.total.credit|default:0 }}</strong></td>
+                <td><strong>₹ {{ source_financial_summary.cbs.total.net|default:0 }}</strong></td>
+            </tr>
+
+            <tr>
+                <td>NDPG</td>
+                <td>Acquirer Successful</td>
+                <td>₹ {{ source_financial_summary.ndpg.acquirer|default:0 }}</td>
+                <td>-</td>
+                <td>₹ {{ source_financial_summary.ndpg.acquirer|default:0 }}</td>
+            </tr>
+
+            <tr>
+                <td>NDPG</td>
+                <td>Issuer Successful</td>
+                <td>₹ {{ source_financial_summary.ndpg.issuer|default:0 }}</td>
+                <td>-</td>
+                <td>₹ {{ source_financial_summary.ndpg.issuer|default:0 }}</td>
+            </tr>
+
+            <tr>
+                <td><strong>NDPG</strong></td>
+                <td><strong>Total Successful</strong></td>
+                <td><strong>₹ {{ source_financial_summary.ndpg.total|default:0 }}</strong></td>
+                <td>-</td>
+                <td><strong>₹ {{ source_financial_summary.ndpg.total|default:0 }}</strong></td>
+            </tr>
+
+            <tr>
+                <td>Switch</td>
+                <td>Acquirer</td>
+                <td>₹ {{ source_financial_summary.switch.acquirer.success|default:0 }}</td>
+                <td>₹ {{ source_financial_summary.switch.acquirer.reversal|default:0 }}</td>
+                <td>₹ {{ source_financial_summary.switch.acquirer.net|default:0 }}</td>
+            </tr>
+
+            <tr>
+                <td>Switch</td>
+                <td>Issuer</td>
+                <td>₹ {{ source_financial_summary.switch.issuer.success|default:0 }}</td>
+                <td>₹ {{ source_financial_summary.switch.issuer.reversal|default:0 }}</td>
+                <td>₹ {{ source_financial_summary.switch.issuer.net|default:0 }}</td>
+            </tr>
+
+            <tr>
+                <td>Switch</td>
+                <td>On-Us</td>
+                <td>₹ {{ source_financial_summary.switch.onus.success|default:0 }}</td>
+                <td>₹ {{ source_financial_summary.switch.onus.reversal|default:0 }}</td>
+                <td>₹ {{ source_financial_summary.switch.onus.net|default:0 }}</td>
+            </tr>
+
+            <tr>
+                <td><strong>Switch</strong></td>
+                <td><strong>Total</strong></td>
+                <td><strong>₹ {{ source_financial_summary.switch.total.success|default:0 }}</strong></td>
+                <td><strong>₹ {{ source_financial_summary.switch.total.reversal|default:0 }}</strong></td>
+                <td><strong>₹ {{ source_financial_summary.switch.total.net|default:0 }}</strong></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="section">
+    <h2>CBS vs NDPG Difference Amount</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>CBS Net Amount</th>
+                <th>NDPG / Switch Amount</th>
+                <th>Difference</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr>
+                <td>Acquirer</td>
+                <td>₹ {{ source_financial_summary.cbs.acquirer.net|default:0 }}</td>
+                <td>₹ {{ source_financial_summary.ndpg.acquirer|default:0 }}</td>
+                <td>₹ {{ source_financial_summary.difference.cbs_ndpg_acquirer|default:0 }}</td>
+            </tr>
+
+            <tr>
+                <td>Issuer</td>
+                <td>₹ {{ source_financial_summary.cbs.issuer.net|default:0 }}</td>
+                <td>₹ {{ source_financial_summary.ndpg.issuer|default:0 }}</td>
+                <td>₹ {{ source_financial_summary.difference.cbs_ndpg_issuer|default:0 }}</td>
+            </tr>
+
+            <tr>
+                <td>On-Us</td>
+                <td>₹ {{ source_financial_summary.cbs.onus.net|default:0 }}</td>
+                <td>₹ Switch {{ source_financial_summary.switch.onus.net|default:0 }}</td>
+                <td>₹ {{ source_financial_summary.difference.cbs_ndpg_onus|default:0 }}</td>
+            </tr>
+
+            <tr>
+                <td><strong>Total</strong></td>
+                <td><strong>₹ {{ source_financial_summary.cbs.total.net|default:0 }}</strong></td>
+                <td><strong>₹ {{ source_financial_summary.ndpg.total|default:0 }}</strong></td>
+                <td><strong>₹ {{ source_financial_summary.difference.cbs_ndpg_total|default:0 }}</strong></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="section">
+    <h2>Reconciliation Status Distribution</h2>
+    <div class="chart-box">
+        <canvas id="statusChart"></canvas>
+    </div>
+</div>
+
+<div class="section">
+    <h2>Daily Reconciliation Trend</h2>
+    <div class="chart-box">
+        <canvas id="trendChart"></canvas>
+    </div>
+</div>
+
+<div class="section">
+    <h2>Status-wise Reconciliation Summary</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Status</th>
+                <th>Total Records</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for row in status_summary %}
+            <tr>
+                <td>{{ row.status }}</td>
+                <td>{{ row.total }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="2">No reconciliation records available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="section">
+    <h2>Exception Summary</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Exception Status</th>
+                <th>Total</th>
+                <th>CBS Amount</th>
+                <th>NDPG Amount</th>
+                <th>Switch Amount</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for row in exception_summary %}
+            <tr>
+                <td>{{ row.status }}</td>
+                <td>{{ row.total }}</td>
+                <td>₹ {{ row.cbs_amount|default:0 }}</td>
+                <td>₹ {{ row.ndpg_amount|default:0 }}</td>
+                <td>₹ {{ row.switch_amount|default:0 }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">No exception records available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="section">
+    <h2>Dispute Status Summary</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Case Status</th>
+                <th>Total Cases</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for row in dispute_summary %}
+            <tr>
+                <td>{{ row.case_status }}</td>
+                <td>{{ row.total }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="2">No dispute cases available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="section">
+    <h2>Recent Dispute Cases</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>STAN</th>
+                <th>RRN</th>
+                <th>Amount</th>
+                <th>Source Status</th>
+                <th>Case Status</th>
+                <th>Reason</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for dispute in recent_disputes %}
+            <tr>
+                <td>{{ dispute.transaction_date }}</td>
+                <td>{{ dispute.stan_no|default:"-" }}</td>
+                <td>{{ dispute.rrn|default:"-" }}</td>
+                <td>₹ {{ dispute.disputed_amount|default:0 }}</td>
+                <td>{{ dispute.source_status }}</td>
+                <td>
+                    {% if dispute.case_status == "OPEN" %}
+                        <span class="badge-open">{{ dispute.case_status }}</span>
+                    {% else %}
+                        <span class="badge-closed">{{ dispute.case_status }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ dispute.dispute_reason|default:"-" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7">No recent dispute cases available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    const statusLabels = JSON.parse('{{ status_labels|escapejs }}');
+    const statusValues = JSON.parse('{{ status_values|escapejs }}');
+
+    new Chart(document.getElementById('statusChart'), {
+        type: 'doughnut',
+        data: {
+            labels: statusLabels,
+            datasets: [{
+                label: 'Status Count',
+                data: statusValues
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    const trendLabels = JSON.parse('{{ trend_labels|escapejs }}');
+    const trendTotal = JSON.parse('{{ trend_total|escapejs }}');
+    const trendMatched = JSON.parse('{{ trend_matched|escapejs }}');
+    const trendUnmatched = JSON.parse('{{ trend_unmatched|escapejs }}');
+
+    new Chart(document.getElementById('trendChart'), {
+        type: 'line',
+        data: {
+            labels: trendLabels,
+            datasets: [
+                {
+                    label: 'Total',
+                    data: trendTotal
+                },
+                {
+                    label: 'Matched',
+                    data: trendMatched
+                },
+                {
+                    label: 'Unmatched',
+                    data: trendUnmatched
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+</script>
+
+</body>
+</html>

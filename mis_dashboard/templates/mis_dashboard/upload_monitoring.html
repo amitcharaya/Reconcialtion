@@ -1,0 +1,296 @@
+<!--{#
+Professional template note:
+    Template: mis_dashboard/templates/mis_dashboard/upload_monitoring.html
+    Purpose: renders part of the reconciliation system UI.
+    Keep business rules in Django views/services; use templates mainly for
+    forms, tables, filters, navigation links, and user-facing status messages.
+#}-->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Monitoring MIS</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #2c3e50;
+        }
+
+        .section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow-x: auto;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 18px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .card h3 {
+            margin: 0;
+            font-size: 14px;
+            color: #777;
+        }
+
+        .card p {
+            margin: 10px 0 0;
+            font-size: 28px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .filter-form {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-form input,
+        .filter-form select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .filter-form button,
+        .btn {
+            background: #2c3e50;
+            color: white;
+            padding: 9px 14px;
+            border-radius: 5px;
+            border: none;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1100px;
+        }
+
+        th {
+            background: #2c3e50;
+            color: white;
+            padding: 10px;
+            text-align: left;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            font-size: 14px;
+            vertical-align: top;
+        }
+
+        .success {
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .failed {
+            color: #c0392b;
+            font-weight: bold;
+        }
+
+        .partial {
+            color: #f39c12;
+            font-weight: bold;
+        }
+
+        .file-name {
+            max-width: 350px;
+            word-break: break-all;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>Upload Monitoring MIS</h1>
+
+<div class="section">
+    {# Filter/upload form starts here. The form values are submitted to the Django view for validation and processing. #}
+<form method="get" class="filter-form">
+        <label>From Date</label>
+        <input type="date" name="from_date" value="{{ selected_from_date|default:'' }}">
+
+        <label>To Date</label>
+        <input type="date" name="to_date" value="{{ selected_to_date|default:'' }}">
+
+        <label>Source</label>
+        <select name="source">
+            <option value="">All</option>
+            <option value="CBS" {% if selected_source == "CBS" %}selected{% endif %}>CBS</option>
+            <option value="SWITCH" {% if selected_source == "SWITCH" %}selected{% endif %}>Switch</option>
+            <option value="NDPG" {% if selected_source == "NDPG" %}selected{% endif %}>NDPG</option>
+        </select>
+
+        <label>Status</label>
+        <select name="status">
+            <option value="">All</option>
+            <option value="SUCCESS" {% if selected_status == "SUCCESS" %}selected{% endif %}>Success</option>
+            <option value="FAILED" {% if selected_status == "FAILED" %}selected{% endif %}>Failed</option>
+            <option value="PARTIAL" {% if selected_status == "PARTIAL" %}selected{% endif %}>Partial</option>
+        </select>
+
+        <button type="submit">Apply Filter</button>
+
+        <a href="{% url 'mis_dashboard:upload_monitoring' %}" class="btn">Clear</a>
+        <a href="{% url 'mis_dashboard:dashboard' %}" class="btn">Dashboard</a>
+    </form>
+</div>
+
+<div class="cards">
+    <div class="card">
+        <h3>Total Uploads</h3>
+        <p>{{ upload_summary.total_uploads }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Successful Uploads</h3>
+        <p>{{ upload_summary.success_uploads }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Failed Uploads</h3>
+        <p>{{ upload_summary.failed_uploads }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Partial Uploads</h3>
+        <p>{{ upload_summary.partial_uploads }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Total Records</h3>
+        <p>{{ upload_summary.total_records }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Successful Records</h3>
+        <p>{{ upload_summary.success_records }}</p>
+    </div>
+
+    <div class="card">
+        <h3>Error Records</h3>
+        <p>{{ upload_summary.total_errors }}</p>
+    </div>
+</div>
+
+<div class="section">
+    <h2>Source-wise Upload Summary</h2>
+
+    {# Report table starts here. Rows are generated from queryset/context data prepared in the view. #}
+<table>
+        <thead>
+            <tr>
+                <th>Source</th>
+                <th>Total Uploads</th>
+                <th>Total Records</th>
+                <th>Success Records</th>
+                <th>Error Records</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for row in source_summary %}
+            <tr>
+                <td>{{ row.source }}</td>
+                <td>{{ row.total_uploads }}</td>
+                <td>{{ row.total_records }}</td>
+                <td>{{ row.success_records }}</td>
+                <td>{{ row.total_errors }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">No upload data found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="section">
+    <h2>Upload Register</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Uploaded At</th>
+                <th>Batch Date</th>
+                <th>Source</th>
+                <th>Report Type</th>
+                <th>File Name</th>
+                <th>Total Records</th>
+                <th>Success Records</th>
+                <th>Error Records</th>
+                <th>Status</th>
+                <th>Remarks</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for row in upload_records %}
+            <tr>
+                <td>
+                    {% if row.uploaded_at %}
+                        {{ row.uploaded_at|date:"d-m-Y H:i" }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+
+                <td>{{ row.batch_date|date:"d-m-Y" }}</td>
+                <td>{{ row.source }}</td>
+                <td>{{ row.report_type }}</td>
+                <td class="file-name">{{ row.file_name }}</td>
+                <td>{{ row.total_records }}</td>
+                <td>{{ row.success_records }}</td>
+                <td>{{ row.total_errors }}</td>
+
+                <td>
+                    {% if row.upload_status == "SUCCESS" %}
+                        <span class="success">Success</span>
+                    {% elif row.upload_status == "FAILED" %}
+                        <span class="failed">Failed</span>
+                    {% elif row.upload_status == "PARTIAL" %}
+                        <span class="partial">Partial</span>
+                    {% else %}
+                        {{ row.upload_status }}
+                    {% endif %}
+                </td>
+
+                <td>{{ row.remarks|default:"-" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="10">No upload records found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

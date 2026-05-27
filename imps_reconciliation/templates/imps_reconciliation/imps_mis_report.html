@@ -1,0 +1,276 @@
+{#
+Professional template note:
+    Template: imps_reconciliation/templates/imps_reconciliation/imps_mis_report.html
+    Purpose: renders part of the reconciliation system UI.
+    Keep business rules in Django views/services; use templates mainly for
+    forms, tables, filters, navigation links, and user-facing status messages.
+#}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>IMPS MIS Report</title>
+</head>
+<body>
+
+<h2>IMPS MIS Report</h2>
+
+{# Filter/upload form starts here. The form values are submitted to the Django view for validation and processing. #}
+<form method="get">
+    <label>From Date:</label>
+    <input type="date" name="from_date" value="{{ from_date }}">
+
+    <label>To Date:</label>
+    <input type="date" name="to_date" value="{{ to_date }}">
+
+    <button type="submit">Search</button>
+</form>
+
+<hr>
+
+<h3>1. Switch IMPS Transaction Summary</h3>
+
+{# Report table starts here. Rows are generated from queryset/context data prepared in the view. #}
+<table border="1" cellpadding="6">
+    <tr>
+        <th>Particulars</th>
+        <th>No. of Transactions</th>
+        <th>Amount</th>
+    </tr>
+
+    <tr>
+        <td>Total Switch Transactions</td>
+        <td>{{ switch_summary.total_transactions }}</td>
+        <td>{{ switch_summary.total_amount }}</td>
+    </tr>
+
+    <tr>
+        <td>Financial Transactions</td>
+        <td>{{ switch_summary.financial_count }}</td>
+        <td>{{ switch_summary.financial_amount }}</td>
+    </tr>
+
+    <tr>
+        <td>Successful Financial Transactions</td>
+        <td>{{ switch_summary.successful_financial_count }}</td>
+        <td>{{ switch_summary.successful_financial_amount }}</td>
+    </tr>
+
+    <tr>
+        <td>Failed Financial Transactions</td>
+        <td>{{ switch_summary.failed_financial_count }}</td>
+        <td>{{ switch_summary.failed_financial_amount }}</td>
+    </tr>
+
+    <tr>
+        <td>Non-Financial Transactions</td>
+        <td>{{ switch_summary.non_financial_count }}</td>
+        <td>{{ switch_summary.non_financial_amount }}</td>
+    </tr>
+
+    <tr>
+        <td>Successful Non-Financial Transactions</td>
+        <td>{{ switch_summary.successful_non_financial_count }}</td>
+        <td>0.00</td>
+    </tr>
+
+    <tr>
+        <td>Failed Non-Financial Transactions</td>
+        <td>{{ switch_summary.failed_non_financial_count }}</td>
+        <td>0.00</td>
+    </tr>
+</table>
+
+<hr>
+
+<h3>2. IMPS Reconciliation Summary</h3>
+
+<table border="1" cellpadding="6">
+    <tr>
+        <th>Particulars</th>
+        <th>No. of Transactions</th>
+        <th>Amount</th>
+    </tr>
+
+    <tr>
+        <td>Total Reconciliation Records</td>
+        <td>{{ reconciliation_summary.total_reconciliation_records }}</td>
+        <td>-</td>
+    </tr>
+
+    <tr>
+        <td>Matched Transactions</td>
+        <td>{{ reconciliation_summary.matched_count }}</td>
+        <td>{{ reconciliation_summary.matched_amount }}</td>
+    </tr>
+
+    <tr>
+        <td>Unmatched Transactions</td>
+        <td>{{ reconciliation_summary.unmatched_count }}</td>
+        <td>{{ reconciliation_summary.unmatched_amount }}</td>
+    </tr>
+
+    <tr>
+        <td>No Dispute / Auto Reversed</td>
+        <td>{{ reconciliation_summary.no_dispute_count }}</td>
+        <td>-</td>
+    </tr>
+
+    <tr>
+        <td>Amount Mismatch</td>
+        <td>{{ reconciliation_summary.amount_mismatch_count }}</td>
+        <td>-</td>
+    </tr>
+</table>
+
+<hr>
+
+<h3>3. Status Wise Summary</h3>
+
+<table border="1" cellpadding="6">
+    <tr>
+        <th>Status</th>
+        <th>No. of Transactions</th>
+        <th>CBS Amount</th>
+        <th>Switch Amount</th>
+        <th>NDPG Amount</th>
+    </tr>
+
+    {% for row in status_wise_summary %}
+        <tr>
+            <td>{{ row.status }}</td>
+            <td>{{ row.total_count }}</td>
+            <td>{{ row.cbs_total|default:"0.00" }}</td>
+            <td>{{ row.switch_total|default:"0.00" }}</td>
+            <td>{{ row.ndpg_total|default:"0.00" }}</td>
+        </tr>
+    {% empty %}
+        <tr>
+            <td colspan="5">No reconciliation data found.</td>
+        </tr>
+    {% endfor %}
+</table>
+
+<hr>
+
+<h3>4. Detailed Unmatched Breakup</h3>
+
+<table border="1" cellpadding="6">
+    <tr>
+        <th>Unmatched Category</th>
+        <th>No. of Transactions</th>
+    </tr>
+
+    <tr>
+        <td>CBS Only</td>
+        <td>{{ reconciliation_summary.cbs_only_count }}</td>
+    </tr>
+
+    <tr>
+        <td>Switch Only</td>
+        <td>{{ reconciliation_summary.switch_only_count }}</td>
+    </tr>
+
+    <tr>
+        <td>NDPG Only</td>
+        <td>{{ reconciliation_summary.ndpg_only_count }}</td>
+    </tr>
+
+    <tr>
+        <td>CBS + Switch Only</td>
+        <td>{{ reconciliation_summary.cbs_switch_only_count }}</td>
+    </tr>
+
+    <tr>
+        <td>CBS + NDPG Only</td>
+        <td>{{ reconciliation_summary.cbs_ndpg_only_count }}</td>
+    </tr>
+
+    <tr>
+        <td>Switch + NDPG Only</td>
+        <td>{{ reconciliation_summary.switch_ndpg_only_count }}</td>
+    </tr>
+
+    <tr>
+        <td>Failed NDPG Only</td>
+        <td>{{ reconciliation_summary.failed_ndpg_only_count }}</td>
+    </tr>
+
+    <tr>
+        <td>CBS Auto Reversed</td>
+        <td>{{ reconciliation_summary.cbs_auto_reversed_count }}</td>
+    </tr>
+</table>
+
+
+<hr>
+
+<h3>5. IMPS Disputes Created for Selected Date Range</h3>
+
+<table border="1" cellpadding="6">
+    <tr>
+        <th>Particulars</th>
+        <th>No. of Cases</th>
+        <th>Amount</th>
+    </tr>
+    <tr>
+        <td>Total Disputes</td>
+        <td>{{ dispute_summary.total_disputes }}</td>
+        <td>-</td>
+    </tr>
+    <tr>
+        <td>Open Disputes</td>
+        <td>{{ dispute_summary.open_disputes }}</td>
+        <td>{{ dispute_summary.financial_exposure }}</td>
+    </tr>
+</table>
+
+<h3>6. Dispute Status Wise Summary</h3>
+
+<table border="1" cellpadding="6">
+    <tr>
+        <th>Case Status</th>
+        <th>No. of Cases</th>
+        <th>Amount</th>
+    </tr>
+    {% for row in dispute_status_summary %}
+    <tr>
+        <td>{{ row.case_status }}</td>
+        <td>{{ row.total_count }}</td>
+        <td>{{ row.total_amount|default:"0.00" }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="3">No IMPS disputes found.</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<h3>7. Recent IMPS Dispute Cases</h3>
+
+<table border="1" cellpadding="6">
+    <tr>
+        <th>Date</th>
+        <th>Transaction Serial No.</th>
+        <th>RRN</th>
+        <th>Amount</th>
+        <th>Source Status</th>
+        <th>Case Status</th>
+    </tr>
+    {% for row in recent_disputes %}
+    <tr>
+        <td>{{ row.transaction_date }}</td>
+        <td>{{ row.transaction_serial_number }}</td>
+        <td>{{ row.rrn }}</td>
+        <td>{{ row.disputed_amount }}</td>
+        <td>{{ row.source_status }}</td>
+        <td>{{ row.case_status }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="6">No recent IMPS disputes found.</td>
+    </tr>
+    {% endfor %}
+</table>
+
+</body>
+</html>

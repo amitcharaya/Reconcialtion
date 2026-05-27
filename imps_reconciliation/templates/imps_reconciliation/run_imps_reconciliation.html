@@ -1,0 +1,70 @@
+{#
+Professional template note:
+    Template: imps_reconciliation/templates/imps_reconciliation/run_imps_reconciliation.html
+    Purpose: renders part of the reconciliation system UI.
+    Keep business rules in Django views/services; use templates mainly for
+    forms, tables, filters, navigation links, and user-facing status messages.
+#}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Run IMPS Reconciliation</title>
+</head>
+<body>
+
+<h2>Run IMPS Reconciliation</h2>
+
+<p>
+    Matching Rule:
+    <strong>CBS Transaction Serial Number = Switch RRN = NDPG Transaction Serial Number</strong>
+</p>
+
+{% if messages %}
+    {% for message in messages %}
+        <p style="color: green;">{{ message }}</p>
+    {% endfor %}
+{% endif %}
+
+{# Filter/upload form starts here. The form values are submitted to the Django view for validation and processing. #}
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Run Reconciliation</button>
+</form>
+
+{% if results %}
+    <h3>Reconciliation Results</h3>
+
+    {# Report table starts here. Rows are generated from queryset/context data prepared in the view. #}
+<table border="1" cellpadding="5">
+        <thead>
+            <tr>
+                <th>Txn Date</th>
+                <th>Transaction Serial Number</th>
+                <th>Switch RRN</th>
+                <th>CBS Amount</th>
+                <th>Switch Amount</th>
+                <th>NDPG Amount</th>
+                <th>Status</th>
+                <th>Reason</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in results %}
+                <tr>
+                    <td>{{ row.transaction_date }}</td>
+                    <td>{{ row.transaction_serial_number }}</td>
+                    <td>{{ row.rrn }}</td>
+                    <td>{{ row.cbs_amount|default:"-" }}</td>
+                    <td>{{ row.switch_amount|default:"-" }}</td>
+                    <td>{{ row.ndpg_amount|default:"-" }}</td>
+                    <td>{{ row.status }}</td>
+                    <td>{{ row.reason }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+
+</body>
+</html>

@@ -1,0 +1,158 @@
+{#
+Professional template note:
+    Template: ndpg/templates/ndpg/upload_imps_raw.html
+    Purpose: renders part of the reconciliation system UI.
+    Keep business rules in Django views/services; use templates mainly for
+    forms, tables, filters, navigation links, and user-facing status messages.
+#}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload NDPG IMPS Raw CSV Files</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            padding: 20px;
+        }
+
+        .box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 950px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 12px;
+        }
+
+        input, select {
+            padding: 8px;
+            width: 100%;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            margin-top: 18px;
+            padding: 10px 15px;
+            border: none;
+            background: #2c3e50;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .success {
+            background: #eafaf1;
+            padding: 15px;
+            margin-top: 20px;
+            border-left: 5px solid #27ae60;
+        }
+
+        .error {
+            background: #fdecea;
+            padding: 15px;
+            margin-top: 20px;
+            border-left: 5px solid #c0392b;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th {
+            background: #2c3e50;
+            color: white;
+            padding: 8px;
+            text-align: left;
+        }
+
+        td {
+            border-bottom: 1px solid #ddd;
+            padding: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+    <h1>Upload NDPG IMPS Raw CSV Files</h1>
+
+    <p>
+        Select multiple CSV files together. Each file must start with a header
+        like <strong>17052026_1C</strong> and must end with EOF record count.
+    </p>
+
+    {# Filter/upload form starts here. The form values are submitted to the Django view for validation and processing. #}
+<form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <label>File Type</label>
+        {{ form.file_type }}
+
+        <label>Raw CSV Files</label>
+        {{ form.raw_files }}
+
+        <button type="submit">Upload Files</button>
+    </form>
+
+    {% if summaries %}
+        <div class="success">
+            <h3>Upload Completed</h3>
+
+            {# Report table starts here. Rows are generated from queryset/context data prepared in the view. #}
+<table>
+                <thead>
+                    <tr>
+                        <th>File Name</th>
+                        <th>Type</th>
+                        <th>Raw Header</th>
+                        <th>File Date</th>
+                        <th>Cycle</th>
+                        <th>EOF Count</th>
+                        <th>Parsed</th>
+                        <th>Created</th>
+                        <th>Updated</th>
+                        <th>Skipped</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for summary in summaries %}
+                    <tr>
+                        <td>{{ summary.filename }}</td>
+                        <td>{{ summary.file_type }}</td>
+                        <td>{{ summary.raw_header }}</td>
+                        <td>{{ summary.file_date }}</td>
+                        <td>{{ summary.cycle_no }}</td>
+                        <td>{{ summary.eof_record_count }}</td>
+                        <td>{{ summary.total_records }}</td>
+                        <td>{{ summary.created_count }}</td>
+                        <td>{{ summary.updated_count }}</td>
+                        <td>{{ summary.skipped_count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+
+    {% if error %}
+        <div class="error">
+            <h3>Error</h3>
+            <p>{{ error }}</p>
+        </div>
+    {% endif %}
+</div>
+
+</body>
+</html>

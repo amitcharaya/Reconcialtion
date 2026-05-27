@@ -1,0 +1,46 @@
+{#
+Professional template note:
+    Template: reconciliation/templates/reconciliation/dashboard.html
+    Purpose: renders part of the reconciliation system UI.
+    Keep business rules in Django views/services; use templates mainly for
+    forms, tables, filters, navigation links, and user-facing status messages.
+#}
+<h1>ATM Reconciliation Dashboard</h1>
+
+{# Filter/upload form starts here. The form values are submitted to the Django view for validation and processing. #}
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">
+        Run Dashboard
+    </button>
+</form>
+
+{% if summary %}
+    <hr>
+
+    <h2>Summary for {{ summary.date }}</h2>
+
+    <p>Total Transactions: {{ summary.total }}</p>
+    <p>Disputes: {{ summary.disputes_created }}</p>
+    <p>Matched All: {{ summary.matched_all }}</p>
+    <p>Match Percentage: {{ summary.match_percentage }}%</p>
+
+    <h3>Exceptions</h3>
+
+    <p>CBS Only: {{ summary.cbs_only }}</p>
+    <p>Switch Only: {{ summary.switch_only }}</p>
+    <p>NDPG Only: {{ summary.ndpg_only }}</p>
+    <p>CBS + Switch Only: {{ summary.cbs_switch_only }}</p>
+    <p>CBS + NDPG Only: {{ summary.cbs_ndpg_only }}</p>
+    <p>NDPG + Switch Only: {{ summary.ndpg_switch_only }}</p>
+{% endif %}
+<a href="/reconciliation/download-report/?transaction_date={{ summary.date }}&report_type=ALL">
+    Download Full Report
+</a>
+
+<br><br>
+
+<a href="/reconciliation/download-report/?transaction_date={{ summary.date }}&report_type=CBS_ONLY">
+    Download CBS Only Report
+</a>
