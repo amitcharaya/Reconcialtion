@@ -63,6 +63,7 @@ def parse_rgcs_cbs_record(line):
         "terminal_location": raw_record[173:213].strip(),
         "response_code": raw_record[213:215].strip(),
         "raw_record": raw_record,
+
     }
 
     return data

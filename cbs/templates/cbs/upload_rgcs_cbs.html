@@ -1,10 +1,4 @@
-{#
-Professional template note:
-    Template: cbs/templates/cbs/upload_rgcs_cbs.html
-    Purpose: renders part of the reconciliation system UI.
-    Keep business rules in Django views/services; use templates mainly for
-    forms, tables, filters, navigation links, and user-facing status messages.
-#}
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -90,30 +84,49 @@ Professional template note:
 </form>
     {% if result %}
         <h3>Upload Summary</h3>
-        <p><strong>File:</strong> {{ result.filename }}</p>
-        <p><strong>Status:</strong> {{ result.status }}</p>
-        <p><strong>Total Records:</strong> {{ result.total_records }}</p>
-        <p><strong>Total Errors:</strong> {{ result.total_errors }}</p>
+        <p><strong>Status:</strong> {{ summary.message }}</p>
+        <p><strong>Status:</strong> {{ summary.status }}</p>
+        <p><strong>Total Records:</strong> {{ summary.issuer_count }}</p>
+        <p><strong>Total Errors:</strong> {{ summary.issuer_errors }}</p>
+    {% endif %}
+{% if summary %}
+    <hr>
+
+    <h2>Upload Result</h2>
+    <p>{{ summary.message }}</p>
+
+    {% if summary.status == "success" %}
+
+        <p>Issuer Records: {{ summary.issuer_count }}</p>
+
+        <p>Total Records Saved: {{ summary.total_count }}</p>
     {% endif %}
 
-    {% if errors %}
-        <h3>Errors</h3>
+    {% if summary.status == "failed" %}
+        <h3>Validation Errors</h3>
+
         {# Report table starts here. Rows are generated from queryset/context data prepared in the view. #}
-<table border="1" cellpadding="8" cellspacing="0">
+<table border="1" cellpadding="5">
             <tr>
-                <th>Line No.</th>
+                <th>File</th>
+                <th>Line</th>
                 <th>Error</th>
             </tr>
 
-            {% for err in errors %}
+            {% for error in summary.errors %}
                 <tr>
-                    <td>{{ err.line_no }}</td>
-                    <td>{{ err.error }}</td>
+                    <td>{{ error.file }}</td>
+                    <td>{{ error.line }}</td>
+                    <td>
+                        {% for item in error.errors %}
+                            {{ item }}<br>
+                        {% endfor %}
+                    </td>
                 </tr>
             {% endfor %}
         </table>
     {% endif %}
-
+{% endif %}
 </div>
 
 </body>

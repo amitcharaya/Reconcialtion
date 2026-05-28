@@ -1,12 +1,12 @@
 """
 View/controller logic for the cbs application. Views receive HTTP requests, call service-layer code, and render templates or redirects.
 
-Professional note:
-    This project follows a simple separation of concerns:
-    models store data, forms validate input, views control request/response flow,
-    and services contain business rules such as import, reconciliation, dashboard
-    summaries, dispute creation, and Excel generation.
+
 """
+import os
+import django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'reconcilation.settings')
+django.setup()
 
 from django.shortcuts import render
 
@@ -30,8 +30,34 @@ from .services.rgcs.parser import parse_rgcs_cbs_record
 from .services.rgcs.validator import validate_rgcs_cbs_record
 
 
-
+"""
+ 
+"""
 def process_uploaded_file(uploaded_file, expected_file_type, file_label):
+    """ Helper Function to convert the flat files record and validation errors to python list of  dictionary returns  parsed_records and errors lists of dictionary"
+        Arguments:
+            uploaded_file {string} -- uploaded file CBs ATM File
+            expected_file_type {string} -- expected file type "I", "O", "A"
+            file_label {string} -- file label "Acquirer,Issuer,Onus"
+
+        Returns:
+            parsed_records {list} -- list of parsed records
+            errors {list} -- list of validation errors
+
+        read the file  line by line, validate and validation pass adds record to list
+        and if failed add errors to list and return record and error list back to caller
+
+        Usage:-  called by the function for uploading ATM CBS files
+        Expected file_type= "A","I","O"
+        file label "Acquirer", "Issuer", "On-Us
+
+        Use Helper function parse_cbs_record(decoded_line) from parser.py and
+         validate_cbs_record from validater.py to convert the flat file to python dictionary
+         and validation errors found in transaction record
+
+
+        """
+
     parsed_records = []
     errors = []
 
@@ -41,6 +67,7 @@ def process_uploaded_file(uploaded_file, expected_file_type, file_label):
 
             if not decoded_line.strip():
                 continue
+
 
             parsed_data = parse_cbs_record(decoded_line)
 
@@ -70,6 +97,14 @@ def process_uploaded_file(uploaded_file, expected_file_type, file_label):
 
 
 def upload_cbs_files(request):
+    """ Function to upload ATM CBS files
+
+    Display form to upload ATM CBS files
+    if any CBS ATM file contains error the function aborts display error messages
+    if no error found in validations records are saved and display the status message
+     Use helper function process_uploaded_file to convert the lines in flat files to list python dictionary
+    """
+
     selected_date = request.GET.get("transaction_date") or request.GET.get("batch_date")
     form = CBSUploadForm(initial={"transaction_date": selected_date} if selected_date else None)
     summary = None
@@ -79,7 +114,7 @@ def upload_cbs_files(request):
 
         if form.is_valid():
             selected_date = normalize_date(form.cleaned_data["transaction_date"])
-
+            # check if files for the date are already uploaded
             if UploadBatch.objects.filter(batch_date=selected_date, upload_status="SUCCESS").exists():
                 summary = {
                     "status": "failed",
@@ -202,14 +237,89 @@ def upload_cbs_imps_files(request):
 "RGCS Upload"
 
 
+def process_uploaded_rgcs_file(uploaded_file, expected_file_type, file_label):
+    """ Helper Function to convert the flat files record and validation errors to python list of  dictionary returns  parsed_records and errors lists of dictionary"
+        Arguments:
+            uploaded_file {string} -- uploaded file CBs ATM File
+            expected_file_type {string} -- expected file type "I", "O", "A"
+            file_label {string} -- file label "Acquirer,Issuer,Onus"
 
-def upload_rgcs_cbs_file(request):
-    result = None
+        Returns:
+            parsed_records {list} -- list of parsed records
+            errors {list} -- list of validation errors
+
+        read the file  line by line, validate and validation pass adds record to list
+        and if failed add errors to list and return record and error list back to caller
+
+        Usage:-  called by the function for uploading ATM CBS files
+        Expected file_type= "A","I","O"
+        file label "Acquirer", "Issuer", "On-Us
+
+        Use Helper function parse_cbs_record(decoded_line) from parser.py and
+         validate_cbs_record from validater.py to convert the flat file to python dictionary
+         and validation errors found in transaction record
+
+
+        """
+
+    parsed_records = []
     errors = []
 
+    for line_number, line in enumerate(uploaded_file, start=1):
+        try:
+            decoded_line = line.decode("utf-8").rstrip("\n").rstrip("\r")
+
+            if not decoded_line.strip():
+                continue
+
+            parsed_data = parse_rgcs_cbs_record(decoded_line)
+
+            validation_errors = validate_rgcs_cbs_record(
+                parsed_data,
+                decoded_line,
+                expected_file_type
+            )
+
+            if validation_errors:
+                errors.append({
+                    "file": file_label,
+                    "line": line_number,
+                    "errors": validation_errors,
+                })
+            else:
+                parsed_records.append(parsed_data)
+
+        except Exception as e:
+            errors.append({
+                "file": file_label,
+                "line": line_number,
+                "errors": [str(e)],
+            })
+
+    return parsed_records, errors
+
+
+def upload_rgcs_cbs_file(request):
+    """ Function to upload RGCS CBS files
+
+        Display form to upload RGCS CBS files
+        if any CBS RGCS file contains error the function aborts display error messages
+        if no error found in validations records are saved and display the status message
+
+         Helper Functions used:
+
+         Use helper parse_rgcs_cbs_record from service/rgcs/parser.py to covert flat file record to python dictionary
+         validate_rgcs_cbs_record(parsed_data) from service/rgcs/validator.py to perform validations
+        """
+
+    result = None
+
+
+    errors = []
+    summary=""
     if request.method == "POST":
         form = RGCSCBSUploadForm(request.POST, request.FILES)
-
+        selected_date = request.GET.get("transaction_date") or request.GET.get("batch_date")
         if not request.FILES:
             messages.error(request, "No file received by server. Check form enctype and input name.")
 
@@ -232,93 +342,79 @@ def upload_rgcs_cbs_file(request):
                 "errors": errors,
             })
 
-        if RGCSUploadBatch.objects.filter(source_filename=filename).exists():
+        if RGCSUploadBatch.objects.filter(batch_date=selected_date, upload_status="SUCCESS").exists():
             messages.error(request, f"Duplicate upload blocked. File already uploaded: {filename}")
             return render(request, "cbs/upload_rgcs_cbs.html", {
                 "form": form,
                 "result": result,
                 "errors": errors,
             })
-
-        total_records = 0
-        total_errors = 0
-
-        try:
-            batch_date = form.cleaned_data["transaction_date"]
-            with transaction.atomic():
-                batch = RGCSUploadBatch.objects.create(
-                    batch_date=batch_date,
-                    source_filename=filename,
-                    upload_status="SUCCESS",
-                    remarks=f"RGCS CBS upload started: {filename}",
-                )
-
-                for line_no, raw_line in enumerate(uploaded_file, start=1):
-                    try:
-                        line = raw_line.decode("utf-8", errors="ignore").rstrip("\r\n")
-
-                        parsed_data = parse_rgcs_cbs_record(line)
-
-                        if parsed_data is None:
-                            continue
-
-                        validation_errors = validate_rgcs_cbs_record(parsed_data)
-
-                        if validation_errors:
-                            total_errors += 1
-                            errors.append({
-                                "line_no": line_no,
-                                "error": "; ".join(validation_errors),
-                            })
-                            continue
-
-                        RGCSCBSTransaction.objects.create(
-                            batch=batch,
-                            source_filename=filename,
-                            **parsed_data
-                        )
-
-                        total_records += 1
-
-                    except Exception as e:
-                        total_errors += 1
-                        errors.append({
-                            "line_no": line_no,
-                            "error": str(e),
-                        })
-
-                if total_records == 0:
-                    batch.upload_status = "FAILED"
-                elif total_errors > 0:
-                    batch.upload_status = "PARTIAL"
-                else:
-                    batch.upload_status = "SUCCESS"
-
-                batch.total_records = total_records
-                batch.total_errors = total_errors
-                batch.remarks = f"RGCS CBS upload completed: {filename}"
-                batch.save()
-
-            result = {
-                "filename": filename,
-                "total_records": total_records,
-                "total_errors": total_errors,
-                "status": batch.upload_status,
-            }
-
-            messages.success(
-                request,
-                f"Upload processed. Records saved: {total_records}, Errors: {total_errors}"
+        else:
+            issuer_records, issuer_errors = process_uploaded_rgcs_file(
+                uploaded_file, "I", "Issuer"
             )
 
-        except Exception as e:
-            messages.error(request, f"Upload failed: {str(e)}")
+        for record in issuer_records:
+            if normalize_date(record["transaction_date"]) != normalize_date(selected_date):
+                print(normalize_date(record["transaction_date"]))
+                issuer_errors.append({
+                    "file": "Date Validation",
+                    "line": "-",
+                    "errors": [
+                        f"Record date {record['transaction_date']} does not match selected upload date {selected_date}."
+                    ],
+                })
+
+        if not issuer_records:
+            summary = {
+                "status": "failed",
+                "message": "No valid CBS records found in uploaded RGCS files.",
+                "errors": issuer_errors,
+            }
+        elif issuer_errors:
+            RGCSUploadBatch.objects.create(
+                batch_date=selected_date,
+                source_filename=filename,
+
+                total_records=0,
+                total_errors=len(issuer_errors),
+                upload_status="FAILED",
+                remarks="Validation failed. No records saved.",
+            )
+            summary = {
+                "status": "failed",
+                "message": "Validation failed. No data has been saved.",
+                "errors": issuer_errors,
+            }
+        else:
+            with transaction.atomic():
+                batch = RGCSUploadBatch.objects.create(
+                    batch_date=selected_date,
+                    source_filename=filename,
+                    total_records=len(issuer_records),
+                    total_errors=0,
+                    upload_status="SUCCESS",
+                    remarks="CBS ATM files uploaded successfully.",
+                )
+
+                for record in issuer_records:
+                    record["source_filename"] = filename
+                    RGCSCBSTransaction.objects.create(batch=batch, **record)
+
+            summary = {
+                "status": "success",
+                "message": "All CBS files uploaded and saved successfully.",
+
+                "issuer_count": len(issuer_records),
+
+
+            }
 
     else:
         form = RGCSCBSUploadForm(initial={"transaction_date": request.GET.get("transaction_date") or request.GET.get("batch_date")} if (request.GET.get("transaction_date") or request.GET.get("batch_date")) else None)
 
     return render(request, "cbs/upload_rgcs_cbs.html", {
         "form": form,
-        "result": result,
+        "summary": summary,
         "errors": errors[:100],
     })

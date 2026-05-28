@@ -1,10 +1,8 @@
 """
-Python module used by the cbs application.
+Used for reading the CBS flat files and to save them to the database
 
-Professional note:
-    This project follows a simple separation of concerns:
-    models store data, forms validate input, views control request/response flow,
-    and services contain business rules such as import, reconciliation, dashboard
-    summaries, dispute creation, and Excel generation.
+Parser.py convert ATM CBS flat file line to python dictionary
+
+
 """
 

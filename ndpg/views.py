@@ -38,7 +38,11 @@ from .services.rgcs_raw_validator import (
     validate_trailer,
     check_duplicate_file,
 )
-
+from rgcs_reconciliation.services.rgcs_reconciliation_service import run_rgcs_reconciliation
+from disputes.services.dispute_service import (
+    create_rgcs_dispute_cases,
+    close_rgcs_resolved_disputes,
+)
 
 def process_ndpg_file(uploaded_file, file_type, cycle_no):
 
@@ -329,9 +333,41 @@ def upload_rgcs_raw_files(request):
                             )
 
                     RGCSRawTransaction.objects.bulk_create(transactions)
+                    # ---------------------------------------------------------
+                    # Auto-resolution of previous-date RGCS disputes
+                    # ---------------------------------------------------------
+                    # In RGCS, 861 settlement files may contain transactions
+                    # of the previous date. Such transactions may already exist
+                    # in CBS and Switch and may have created OPEN disputes
+                    # earlier as CBS_SWITCH_ONLY.
+                    #
+                    # Therefore, after uploading RGCS NDPG raw files, we check
+                    # whether any uploaded 861 record belongs to an earlier
+                    # transaction date. If yes, we re-run reconciliation for
+                    # that previous date and close resolved disputes.
+                    # ---------------------------------------------------------
 
+                    previous_transaction_dates = set()
+
+                    for txn in transactions:
+                        if (
+                            txn.source_filename == batch.file_861
+                            and txn.transaction_date
+                            and txn.transaction_date < batch_date
+                        ):
+                            previous_transaction_dates.add(txn.transaction_date)
+
+                    auto_closed_disputes = 0
+
+                    for previous_date in previous_transaction_dates:
+                        run_rgcs_reconciliation(previous_date)
+                        create_rgcs_dispute_cases(previous_date)
+                        auto_closed_disputes += close_rgcs_resolved_disputes(previous_date)
                 context["status"] = "SUCCESS"
-                context["message"] = f"Upload successful. {total_records} records imported."
+                context["message"] = (
+                    f"Upload successful. {total_records} records imported. "
+                    f"{auto_closed_disputes} previous-date RGCS dispute(s) closed automatically."
+                )
 
             except Exception as exc:
                 context["status"] = "FAILED"

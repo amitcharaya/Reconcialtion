@@ -8,7 +8,7 @@ Professional note:
     summaries, dispute creation, and Excel generation.
 """
 
-def validate_rgcs_cbs_record(data):
+def validate_rgcs_cbs_record(data,decoded_line,expected_file_type):
     """
     Validate parsed RGCS CBS record.
     Returns list of validation errors.

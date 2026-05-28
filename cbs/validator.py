@@ -7,7 +7,10 @@ Professional note:
     and services contain business rules such as import, reconciliation, dashboard
     summaries, dispute creation, and Excel generation.
 """
-
+import os
+import django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'reconcilation.settings')
+django.setup()
 from .models import CBSATMTransaction
 
 

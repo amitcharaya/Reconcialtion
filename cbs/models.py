@@ -11,7 +11,19 @@ Professional note:
 from django.db import models
 
 # Create your models here.
+
 class UploadBatch(models.Model):
+    """
+        Stores CBS upload batch information.
+
+        One upload operation may contain:
+            Acquirer File
+            Issuer File
+            Onus File
+
+        This model provides complete audit
+        information for every upload.
+        """
 
     STATUS_CHOICES = [
         ("SUCCESS", "Success"),
@@ -52,10 +64,13 @@ class CBSATMTransaction(models.Model):
     ]
     # Core Identity
     stan_no = models.CharField(max_length=6)
-    card_no = models.CharField(max_length=16)
+    card_no = models.CharField(max_length=19)
+    rrn_no= models.CharField(max_length=12)
+    account_type = models.CharField(max_length=2)
+
     # Account / GL Layer
-    customer_account_no = models.CharField(max_length=20,blank=True,null=True)
-    acquirer_gl = models.CharField(max_length=20,blank=True,null=True)
+    customer_account_no = models.CharField(max_length=18,blank=True,null=True)
+    acquirer_gl = models.CharField(max_length=18,blank=True,null=True)
     acquirer_gl_name = models.CharField(max_length=50,blank=True,null=True)
     customer_name = models.CharField(max_length=100,blank=True,null=True)
     # Branch Layer
@@ -96,7 +111,7 @@ class CBSATMTransaction(models.Model):
 
 
 
-from django.db import models
+
 
 
 class CBSIMPSUploadBatch(models.Model):
@@ -188,7 +203,7 @@ class CBSIMPSTransaction(models.Model):
         return f"{self.transaction_serial_number} - {self.transaction_amount}"
 
 """RGCS Models"""
-from django.db import models
+
 
 
 class RGCSUploadBatch(models.Model):
@@ -200,7 +215,7 @@ class RGCSUploadBatch(models.Model):
 
     batch_date = models.DateField()
 
-    source_filename = models.CharField(max_length=255, unique=True)
+    source_filename = models.CharField(max_length=255)
 
     total_records = models.PositiveIntegerField(default=0)
     total_errors = models.PositiveIntegerField(default=0)

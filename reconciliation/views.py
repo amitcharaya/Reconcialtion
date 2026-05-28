@@ -26,7 +26,7 @@ def download_reconciliation_report(request):
     transaction_date = request.GET.get(
         "transaction_date"
     )
-    print(transaction_date)
+
     report_type = request.GET.get(
         "report_type"
     )
@@ -34,7 +34,7 @@ def download_reconciliation_report(request):
     queryset = ATMReconciliationResult.objects.filter(
         transaction_date=normalize_date(transaction_date)
     )
-    print(queryset)
+
 
     if report_type != "ALL":
         queryset = queryset.filter(
@@ -169,7 +169,9 @@ def reconciliation_dashboard(request):
             "summary": summary,
         }
     )
-
+"""
+reconciliation starts her for ATM transactions
+"""
 def reconcile_atm(request):
     form = ATMReconciliationForm(initial={"transaction_date": request.GET.get("transaction_date")} if request.GET.get("transaction_date") else None)
     summary = None

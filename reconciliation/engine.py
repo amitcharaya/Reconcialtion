@@ -9,7 +9,7 @@ Professional note:
 """
 
 from decimal import Decimal
-
+from disputes.services.dispute_service import create_dispute_cases
 from cbs.models import CBSATMTransaction
 from ndpg.models import NDPGATMTransaction
 from switchlog.models import SwitchATMTransaction
@@ -23,7 +23,7 @@ from reconciliation.services.transaction_normalizer import (
     normalize_ndpg_transaction,
 )
 
-from disputes.services.dispute_service import create_dispute_cases
+
 
 def mark_failed_reversed_no_dispute(transaction_date):
     results = ATMReconciliationResult.objects.filter(

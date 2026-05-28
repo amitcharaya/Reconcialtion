@@ -136,7 +136,7 @@ class RGCSDashboardService:
 
             "ndpg_amount": RGCSDashboardService.safe_sum(
                 ndpg_qs,
-                "transaction_amount"
+                "actual_txn_amount"
             ),
         }
 

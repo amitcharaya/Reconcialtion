@@ -223,3 +223,37 @@ def create_imps_dispute_cases(transaction_date=None):
 
     cleanup_imps_no_dispute_cases(transaction_date)
     return created
+
+def close_rgcs_resolved_disputes(transaction_date):
+    """
+    Close open RGCS disputes automatically when later NDPG upload resolves them.
+    Example:
+    CBS + Switch existed on 20-05-2026.
+    NDPG 861 uploaded on 21-05-2026 contains transaction_date 20-05-2026.
+    Existing OPEN dispute for 20-05-2026 must be closed.
+    """
+
+    matched_results = RGCSReconciliationResult.objects.filter(
+        transaction_date=transaction_date,
+        status="MATCHED"
+    )
+
+    closed = 0
+
+    for result in matched_results:
+        disputes = RGCSDisputeCase.objects.filter(
+            transaction_date=transaction_date,
+            rrn=result.rrn,
+            case_status="OPEN"
+        )
+
+        for dispute in disputes:
+            dispute.case_status = "CLOSED"
+            dispute.remarks = (
+                "Automatically closed because transaction was resolved "
+                "after next-day RGCS NDPG 861 upload."
+            )
+            dispute.save(update_fields=["case_status", "remarks", "updated_at"])
+            closed += 1
+
+    return closed
