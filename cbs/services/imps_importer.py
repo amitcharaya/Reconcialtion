@@ -1,12 +1,4 @@
-"""
-Service-layer business logic for the cbs application. Keeping this code outside views makes reconciliation, import, and dashboard logic easier to test and maintain.
 
-Professional note:
-    This project follows a simple separation of concerns:
-    models store data, forms validate input, views control request/response flow,
-    and services contain business rules such as import, reconciliation, dashboard
-    summaries, dispute creation, and Excel generation.
-"""
 
 from django.db import transaction
 
@@ -15,6 +7,15 @@ from cbs.services.imps_parser import parse_cbs_imps_record
 
 
 def read_file_lines(uploaded_file):
+    """Read lines from uploaded file into a list of lines.
+
+        Arguments:
+            uploaded_file {str} -- uploaded file name
+
+        Returns:
+            lines {list} -- list of lines
+    """
+
     uploaded_file.seek(0)
     raw_bytes = uploaded_file.read()
 
@@ -30,6 +31,17 @@ def read_file_lines(uploaded_file):
 
 
 def parse_file_records(uploaded_file, file_type):
+    """ Parse the uploaded file into a list of parsed records.
+
+    Arguments:
+        uploaded_file {str} -- uploaded file name
+        file_type{str} -- expected file type
+
+     Returns:
+           lines {list} -- list of parsed lines
+
+    """
+
     lines = read_file_lines(uploaded_file)
 
     if not lines:
@@ -55,6 +67,15 @@ def parse_file_records(uploaded_file, file_type):
 
 
 def import_cbs_imps_files(acquirer_file, issuer_file, onus_file):
+    """Read CBS IMPS files and parse them and store them in Database.
+       Arguments:
+           acquirer_file {str} -- acquirer filename
+           issuer_file {str} -- issuer filename
+           onus_file {str} -- onus filename
+
+
+    """
+
     acquirer_records = parse_file_records(acquirer_file, "A")
     issuer_records = parse_file_records(issuer_file, "I")
     onus_records = parse_file_records(onus_file, "O")

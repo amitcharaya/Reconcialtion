@@ -310,6 +310,9 @@ def upload_rgcs_cbs_file(request):
 
          Use helper parse_rgcs_cbs_record from service/rgcs/parser.py to covert flat file record to python dictionary
          validate_rgcs_cbs_record(parsed_data) from service/rgcs/validator.py to perform validations
+
+         templates/cbs/upload_rgcs_cbs.html
+
         """
 
     result = None

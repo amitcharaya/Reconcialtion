@@ -1,17 +1,16 @@
-"""
-Validation utilities for the ndpg application. These checks protect the database from malformed or duplicate transaction records.
-
-Professional note:
-    This project follows a simple separation of concerns:
-    models store data, forms validate input, views control request/response flow,
-    and services contain business rules such as import, reconciliation, dashboard
-    summaries, dispute creation, and Excel generation.
-"""
+import os, django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'reconcilation.settings')
+django.setup()
 
 from .models import NDPGATMTransaction
 
 
 def validate_ndpg_record(parsed_data, raw_line, expected_file_type):
+    """
+    Validation utilities for the ndpg application. These checks protect the database from malformed or duplicate transaction records.
+
+
+    """
 
     errors = []
 

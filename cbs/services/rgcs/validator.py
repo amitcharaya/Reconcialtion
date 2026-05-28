@@ -8,16 +8,28 @@ Professional note:
     summaries, dispute creation, and Excel generation.
 """
 
+
 def validate_rgcs_cbs_record(data,decoded_line,expected_file_type):
-    """
-    Validate parsed RGCS CBS record.
+    """Validate parsed RGCS CBS record.
     Returns list of validation errors.
+
+    Arguments:
+        data {dict} -- parsed RGCS CBS record.
+        decoded_line {str} -- decoded RGCS CBS record.
+        expected_file_type {str} -- expected file type.
+
+    Returns:
+        errors {list} -- list of validation errors.
     """
 
+    EXPECTED_RECORD_LENGTH = 203
     errors = []
 
     allowed_transaction_types = ["44", "45", "46", "49"]
     allowed_account_types = ["10", "20", "30"]
+
+    if len(decoded_line) < EXPECTED_RECORD_LENGTH:
+        errors.append("Invalid record length"+" "+ decoded_line)
 
     if data["transaction_type"] not in allowed_transaction_types:
         errors.append("Invalid transaction type. Allowed values are 44, 45, 46, 49.")
@@ -37,8 +49,8 @@ def validate_rgcs_cbs_record(data,decoded_line,expected_file_type):
     if not data["account_number"] or set(data["account_number"]) == {"0"}:
         errors.append("Invalid account number. Zero or blank account number is not allowed.")
 
-    if data["transaction_flag"] not in ["I", "A"]:
-        errors.append("Invalid transaction flag. Allowed values are I or A.")
+    if data["transaction_flag"] !=expected_file_type:
+        errors.append("Invalid transaction type Expected"+{expected_file_type} +"Found :"+ {data["transaction_flag"] })
 
     if data["dr_cr_flag"] not in ["D", "C"]:
         errors.append("Invalid Dr/Cr flag. Allowed values are D or C.")

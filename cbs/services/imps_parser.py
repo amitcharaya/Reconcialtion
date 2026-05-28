@@ -77,6 +77,15 @@ def validate_name(value, field_name):
 """
 
 def parse_cbs_imps_record(line, expected_file_type):
+
+    """Parse cbs imps record
+
+    Arguments:
+        line {str} -- cbs imps record
+        expected_file_type {str} -- expected file type
+    Returns:
+        parsed {dict} -- parsed cbs imps record
+    """
     line = line.rstrip("\n\r")
 
     if len(line) < EXPECTED_LENGTH:
@@ -113,7 +122,7 @@ def parse_cbs_imps_record(line, expected_file_type):
         "remark": line[233:248],
         "response_code": line[248:250],
     }
-    print(data['account_number'])
+
     if data["account_type"] not in ["10", "20", "30"]:
         raise ValueError("Account Type must be 10, 20, or 30.")
 

@@ -14,6 +14,7 @@ def parse_cbs_record(line):
           line {string} -- line to parse
     Returns:
           common_data {dictionary} -- Transaction fields as follows:.
+
           stan_no: {string} -- STAN number
           card_no: {string} -- Card number
           rrn_no: {string} -- RRN number

@@ -202,6 +202,7 @@ class CBSIMPSTransaction(models.Model):
     def __str__(self):
         return f"{self.transaction_serial_number} - {self.transaction_amount}"
 
+
 """RGCS Models"""
 
 

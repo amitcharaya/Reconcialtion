@@ -167,6 +167,13 @@ def parse_amount(value):
 
 
 def read_uploaded_lines(uploaded_file):
+    """ read lines from uploaded file
+    Arguments:
+         uploaded_file: uploaded file
+    Returns:
+        lines (list): list of lines
+
+    """
     uploaded_file.seek(0)
     raw_bytes = uploaded_file.read()
 
@@ -202,7 +209,13 @@ def get_columns_for_file_type(file_type):
 
 
 def read_raw_rows(data_lines, columns):
-    """
+    """ Convert , separated line to dataframe
+    Arguments:
+         data_lines{list}: list of lines
+         columns{list}: list of columns
+     Returns:
+          df {dataframe}: dataframe containing all rows
+
     Sample row ends with comma, so pandas gets one extra blank column.
     We read without names first, then keep only expected columns.
     """
@@ -232,6 +245,18 @@ def read_raw_rows(data_lines, columns):
 
 
 def read_ndpg_imps_raw_file(uploaded_file, file_type):
+    """ read IMPS raw flat file from NDPG and converts them to list  dictionary
+        Arguments:
+            uploaded_file: uploaded file
+            file_type: file type
+        Returns:
+           {
+        "header": header_info,
+        "eof_record_count": eof_record_count,
+        "records": records,
+    }
+    """
+
     lines = read_uploaded_lines(uploaded_file)
 
     file_header_line = lines[0].strip()

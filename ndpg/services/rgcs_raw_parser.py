@@ -131,6 +131,17 @@ def parse_header(line):
 
 
 def parse_trailer(line):
+    """ parse header from raw file and convert ito dict containing fields
+        Arguments:
+              line{str} -- fixed length line
+        Returns:
+            return {
+        "trailer_identifier": line[0:3],
+        "number_of_records": int(line[3:11]),
+        "run_total_amount": parse_amount(line[11:26]),
+    }
+
+    """
     return {
         "trailer_identifier": line[0:3],
         "number_of_records": int(line[3:11]),
@@ -139,6 +150,13 @@ def parse_trailer(line):
 
 
 def parse_data_record(line):
+    """ parse fixed length file to dictionary object for RGCS Raw file convert to dict
+        Arguments:
+              line{str} -- fixed length line
+        Returns:
+              parsed {dict} -- dictionary object for RGCS Raw file
+
+    """
     if len(line) != RGCS_RECORD_LENGTH:
         raise ValueError(
             f"Invalid RGCS record length. Expected {RGCS_RECORD_LENGTH}, got {len(line)}"

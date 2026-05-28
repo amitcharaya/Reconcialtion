@@ -1,11 +1,7 @@
 """
-Service-layer business logic for the cbs application. Keeping this code outside views makes reconciliation, import, and dashboard logic easier to test and maintain.
+Contains helper function to upload CBS RGCS files
 
-Professional note:
-    This project follows a simple separation of concerns:
-    models store data, forms validate input, views control request/response flow,
-    and services contain business rules such as import, reconciliation, dashboard
-    summaries, dispute creation, and Excel generation.
+
 """
 
 from decimal import Decimal
@@ -18,10 +14,35 @@ EXPECTED_RGCS_CBS_RECORD_LENGTH = 215
 def parse_rgcs_cbs_record(line):
     """
     Parse one fixed-width RGCS CBS record.
-
     Position mapping is based on RGCS CBS Recon File Specification.
-
     Python slicing is zero-based, while specification positions are one-based.
+
+    Arguments:
+        line {string} -- line to parse
+        data {dictionary} -- dictionary containing field for CBS RGCS Transaction
+
+        transaction_type {string} -- type of transaction
+        stan_no {string} -- stan number for transaction
+        card_no {string} -- card number for transaction
+        rrn {string} -- rrn for transaction
+        account_type {string} -- account type for transaction
+        account_number {string} -- account number for transaction
+        account_holder_name {string} -- account holder name for transaction
+        branch_code {string} -- branch_code for transaction
+        branch_name {string} -- branch_name for transaction
+        transaction_flag {string} -- transaction flag for transaction
+        dr_cr_flag {string} -- dr cr flag for transaction
+        transaction_amount {Decimal} -- transaction amount for transaction
+        transaction_date {datetime} -- transaction date for transaction
+        transaction_time {datetime} -- transaction time for transaction
+        value_date {datetime} -- value date for transaction
+        value_time {datetime} -- value time for transaction
+        acquirer_institution_code {string} -- acquirer institution code for transaction
+        terminal_id {string} -- terminal id for transaction
+        terminal_location {string} -- terminal location for transaction
+        response_code {string} -- response code for transaction
+        raw_record {string} -- raw record for transaction
+
     """
 
     raw_record = line.rstrip("\r\n")

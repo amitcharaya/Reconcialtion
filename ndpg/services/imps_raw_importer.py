@@ -19,6 +19,11 @@ from ndpg.services.imps_raw_parser import read_ndpg_imps_raw_file
 
 
 def import_ndpg_imps_raw_file(raw_file, file_type):
+    """ read ndpg_imps_raw_file and save into databa
+    Arguments:
+         raw_file: ndpg_imps_raw_file object
+         file_type: ndpg_imps_raw_file file type
+    """
     parsed_data = read_ndpg_imps_raw_file(raw_file, file_type)
 
     header = parsed_data["header"]

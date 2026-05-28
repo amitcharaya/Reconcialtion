@@ -1,17 +1,18 @@
-"""
-Parser utilities for the ndpg application. These functions convert bank/switch/NDPG source files into clean Python dictionaries or model-ready values.
-
-Professional note:
-    This project follows a simple separation of concerns:
-    models store data, forms validate input, views control request/response flow,
-    and services contain business rules such as import, reconciliation, dashboard
-    summaries, dispute creation, and Excel generation.
-"""
+import os, django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'reconcilation.settings')
+django.setup()
 
 from decimal import Decimal
 from reconciliation.utils import normalize_date
 
 def parse_decimal(value):
+    """ Convert paise to RS.
+    Arguments:
+        value {number} -- paise
+    Returns:
+          RS -- decimal value Paise to RS Conversion
+
+    """
     value = value.strip()
 
     if not value:
@@ -23,7 +24,14 @@ def parse_decimal(value):
     return Decimal(value) / Decimal("100")
 
 def parse_ndpg_acquirer_record(line, cycle_no):
+    """ parse NDPG acquirer flat file for ATM  Transactions and convert them to dict from flat line
 
+        Arguments:
+            line {str} -- ndpg_acquirer_record line
+            cycle_no {int} -- cycle_no from ndpg_acquirer_record
+        Returns:
+            dict -- dict from ndpg_acquirer_record fields
+    """
     return {
         "file_type": "ACQUIRER",
         "cycle_no": cycle_no,
@@ -63,7 +71,14 @@ def parse_ndpg_acquirer_record(line, cycle_no):
     }
 
 def parse_ndpg_issuer_record(line, cycle_no):
+    """ parse NDPG Issuer flat file for ATM  Transactions and convert them to dict from flat line
 
+            Arguments:
+                line {str} -- ndpg_acquirer_record line
+                cycle_no {int} -- cycle_no from ndpg_acquirer_record
+            Returns:
+                dict -- dict from ndpg_acquirer_record fields
+        """
     return {
         "file_type": "ISSUER",
         "cycle_no": cycle_no,
