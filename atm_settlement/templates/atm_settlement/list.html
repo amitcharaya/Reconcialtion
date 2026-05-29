@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ATM Settlement List</title>
+</head>
+<body>
+
+<h2>ATM Settlement Cycles</h2>
+
+<a href="{% url 'upload_atm_settlement' %}">Upload New ATM Settlement File</a>
+
+<br><br>
+
+<table border="1" cellpadding="8">
+    <tr>
+        <th>Date</th>
+        <th>Cycle</th>
+        <th>Issuer Sub Total</th>
+        <th>Acquirer Sub Total</th>
+        <th>Settlement Amount</th>
+        <th>Final Settlement Amount</th>
+        <th>Action</th>
+    </tr>
+
+    {% for cycle in cycles %}
+    <tr>
+        <td>{{ cycle.settlement_date }}</td>
+        <td>{{ cycle.cycle_no }}</td>
+        <td>{{ cycle.issuer_sub_total }}</td>
+        <td>{{ cycle.acquirer_sub_total }}</td>
+        <td>{{ cycle.settlement_amount }}</td>
+        <td>{{ cycle.final_settlement_amount }}</td>
+        <td>
+            <a href="{% url 'atm_settlement_detail' cycle.id %}">View</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+</body>
+</html>

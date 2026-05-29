@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload ATM NTSL Settlement File</title>
+</head>
+<body>
+
+<h2>Upload ATM NTSL Settlement File</h2>
+
+<p>Expected file name format: <b>NTSLPSCDDMMYY_1C.xls</b></p>
+<p>Example: <b>NTSLPSC280526_1C.xls</b></p>
+
+{% if messages %}
+    {% for message in messages %}
+        <p style="color:red;">{{ message }}</p>
+    {% endfor %}
+{% endif %}
+
+<!-- templates/atm_settlement/upload.html -->
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <label>Select 4 ATM NTSL Cycle Files:</label><br><br>
+    <input type="file" name="settlement_files" multiple required>
+
+    <br><br>
+    <button type="submit">Upload 4 Settlement Files</button>
+</form>
+
+<br>
+<a href="{% url 'atm_settlement_list' %}">View Uploaded ATM Settlements</a>
+
+</body>
+</html>

@@ -1,0 +1,370 @@
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:x='urn:schemas-microsoft-com:office:excel' xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+<style>table {font-family:arial;font-size:'12px';border:solid 1px #dadada;align:center }td{font-family:arial;font-size:'12px';}.onlysome td{font-family:arial;font-size:'10px';border:solid 1px #dadada}.onlysome th{font-family:arial;font-size:'11px';border:solid 1px #dadada;font-weight:bold;background-color:#dbdbdb;text-align:left;}.onlysometd{font-family:arial;font-size:'11px';border:solid 1px #dadada;font-weight:bold;background-color:#dbdbdb;text-align:left;}.totalline td{font-family:arial;font-size:'11px';border:solid 1px #dadada}
+</style>
+</head>
+
+	<body>
+
+
+		<table width='60%' align='center' cellpadding='1' cellspacing='0'>
+			
+			<tr>
+			<th width='60%' colspan=4 align='Center'>Daily Settlement Statement for THE PUNJAB STATE CO OPERATIVE BANK LTD as on 24/05/2026 </th>
+			</tr>
+			
+		</table>
+		<br>
+		<table width='60%' align='center' cellpadding='1' cellspacing='0' class='onlysome'>
+			 <th align='Center'>Description</th>
+			 <th align='Center'>No of Txns</th>
+			 <th align='Center'>Debit</th>
+			 <th align='Center'>Credit</th>
+			
+			
+			
+			 <tr>
+			 <td>Acquirer WDL Approved Fee</td>
+			 <td>13</td>
+		  	<td>0</td>
+			 <td>
+			 247
+			 </td>
+			 </tr>
+			 <tr>
+			 <td>Acquirer WDL Approved Fee - GST</td>
+			 <td>13</td>
+		  	<td>0</td>
+			 <td>
+			 44.46
+			 </td>
+			 </tr>
+			 <tr>
+			 <td>Acquirer WDL Transaction Amount</td>
+			 <td>13</td>
+		  	<td>0</td>
+			 <td>
+			 59500
+			 </td>
+			 </tr>
+			 <tr>
+			 <td>Acquirer WDL Declined</td>
+			 <td>2</td>
+		  	<td>0</td>
+			 <td>
+			 </td>
+			 </tr>
+			<tr><td/><td/><td/><td/></tr>
+			 <tr>
+			 <td>Issuer BI Approved Fee</td>
+			 <td>1</td>
+		  	<td>7</td>
+			 <td>
+			 </td>
+			 </tr>
+			 <tr>
+			 <td>Issuer BI Approved Fee - GST</td>
+			 <td>1</td>
+		  	<td>1.26</td>
+			 <td>
+			 </td>
+			 </tr>
+			 <tr>
+			 <td>Issuer BI Approved NPCI Switching Fee</td>
+			 <td>1</td>
+		  	<td>0.3</td>
+			 <td>
+			 </td>
+			 </tr>
+			 <tr>
+			 <td>Issuer BI Approved NPCI Switching Fee - GST</td>
+			 <td>1</td>
+		  	<td>0.054</td>
+			 <td>
+			 </td>
+			 </tr>
+			 <tr>
+			 <td>Issuer MS Approved Fee</td>
+			 <td>2</td>
+		  	<td>14</td>
+			 <td>
+			 </td>
+			 </tr>
+			 <tr>
+			 <td>Issuer MS Approved Fee - GST</td>
+			 <td>2</td>
+		  	<td>2.52</td>
+			 <td>
+			 </td>
+			 </tr>
+			 <tr>
+			 <td>Issuer MS Approved NPCI Switching Fee</td>
+			 <td>2</td>
+		  	<td>0.6</td>
+			 <td>
+			 </td>
+			 </tr>
+			 <tr>
+			 <td>Issuer MS Approved NPCI Switching Fee - GST</td>
+			 <td>2</td>
+		  	<td>0.108</td>
+			 <td>
+			 </td>
+			 </tr>
+			 <tr>
+			 <td>Issuer WDL Approved Fee</td>
+			 <td>16</td>
+		  	<td>304</td>
+			 <td>
+			 </td>
+			 </tr>
+			 <tr>
+			 <td>Issuer WDL Approved Fee - GST</td>
+			 <td>16</td>
+		  	<td>54.72</td>
+			 <td>
+			 </td>
+			 </tr>
+			 <tr>
+			 <td>Issuer WDL Approved NPCI Switching Fee</td>
+			 <td>18</td>
+		  	<td>5.4</td>
+			 <td>
+			 </td>
+			 </tr>
+			 <tr>
+			 <td>Issuer WDL Approved NPCI Switching Fee - GST</td>
+			 <td>18</td>
+		  	<td>0.972</td>
+			 <td>
+			 </td>
+			 </tr>
+			 <tr>
+			 <td>Issuer WDL Transaction Amount</td>
+			 <td>16</td>
+		  	<td>62800</td>
+			 <td>
+			 </td>
+			 </tr>
+			 <tr>
+			 <td>Issuer WDL Approved Fee (Micro-ATM)</td>
+			 <td>2</td>
+		  	<td>20</td>
+			 <td>
+			 </td>
+			 </tr>
+			 <tr>
+			 <td>Issuer WDL Approved Fee - GST (Micro-ATM)</td>
+			 <td>2</td>
+		  	<td>3.6</td>
+			 <td>
+			 </td>
+			 </tr>
+			 <tr>
+			 <td>Issuer WDL Transaction Amount (Micro-ATM)</td>
+			 <td>2</td>
+		  	<td>4500</td>
+			 <td>
+			 </td>
+			 </tr>
+			 <tr>
+			 <td>Issuer WDL Declined</td>
+			 <td>4</td>
+		  	<td>0</td>
+			 <td>
+			 </td>
+			 </tr>
+			
+
+
+		
+
+
+			<tr><td/><td/><td/><td/></tr>
+			<tr></tr>
+			<tr>
+			<td>Settlement Charges</td>
+			<td></td>
+			<td>0.0</td>
+			<td></td>
+			</tr>
+			<tr></tr>
+
+			<tr>
+			<td>Issuer/ Acquirer Sub Totals</td>
+			<td></td>
+			
+		  	<td>67714.534</td>
+		  	<td>59791.46</td>
+
+
+			</tr>
+			<tr><td colspan=4 /></tr>	
+			<tr>
+			<td>Settlement Amount</td>
+			<td></td>
+		  	<td>7923.074</td>
+			<td>0</td>
+			</tr>
+			<tr><td/><td/><td/><td/></tr>
+			<tr><td colspan=4 /></tr>
+			<tr><td colspan=4 /></tr>
+
+			<tr>
+			<td>Net Adjusted Amount</td>
+			<td></td>
+			<td>0</td>
+		  	<td>0</td>
+			
+
+			</tr>
+			
+			
+
+			<tr/>
+			
+			<tr>
+			<td class = 'onlysometd' >Final Settlement Amount</td>
+			<td class = 'onlysometd' ></td>
+			
+			
+				<td class = 'onlysometd' >7923.07</td>
+			<td class = 'onlysometd' ></td>
+
+			</tr>
+			
+
+		</table>
+		
+		<table width='60%' align='center' cellpadding='1' cellspacing='0'  class='onlysome'>
+			<tr/>
+			<tr>
+			<th width='60%' colspan=4 align='Center'>Dispute Adjustments</th>
+			</tr>
+			<tr><td colspan=4 /></tr>
+		</table>
+					
+
+
+		<table width='60%' align='center' cellpadding='1' cellspacing='0' class='onlysome'>
+			 <th align='Center'>Description</th>
+			 <th align='Center'>No of Txns</th>
+			 <th align='Center'>Debit</th>
+			 <th align='Center'>Credit</th>
+
+
+			
+
+			<tr><td/><td/><td/><td/></tr>
+
+			<tr>
+			<th>Adjustment Sub Totals</th>
+			<th></th>
+			<th>0</th>
+			<th>0</th>
+
+			
+
+			</tr>	
+			<tr><td/><td/><td/><td/></tr>
+			<tr>
+			<th>Net Adjusted Amount</th>
+			<th></th>
+			<th></th>
+			<th>0</th>
+			
+			</tr>
+			
+			<tr><td/><td/><td/><td/></tr>
+			<tr><td/><td/><td/><td/></tr>
+			<tr><td/><td/><td/><td/></tr>
+		</table>
+
+		
+		
+		
+
+		<table width='60%' align='center' cellpadding='1' cellspacing='0'  class='onlysome'>
+			
+			<tr>
+			<th width='60%' colspan=6 align='Center'>Summary For Micro ATM Transactions(Approved Transaction) for THE PUNJAB STATE CO OPERATIVE BANK LTD as on 24-05-2026</th>
+			</tr>
+			
+			<tr>
+			<th>Description</th>
+			<th>FeeSlab</th>
+			<th>Count</th>
+			<th>TxnAmt</th>
+			<th>Fee</th>
+			<th>Fee Tax</th>
+			</tr>
+			
+			
+
+			
+						
+			
+				<tr>
+				<td>Acquirer WDLTransaction (Micro ATM)</td>
+				<td>Less than Rs. 100</td>
+				<td>0</td>
+		  	<td>0</td>
+		  	<td>0</td>
+		  	<td>0</td>
+				</tr>
+				<tr>
+				<td>Acquirer WDLTransaction (Micro ATM)</td>
+				<td>Rs. 100 and above</td>
+				<td>0</td>
+		  	<td>0</td>
+		  	<td>0</td>
+		  	<td>0</td>
+				</tr>
+				
+			
+						
+			
+				<tr>
+				<td>Issuer WDLTransaction (Micro ATM)</td>
+				<td>Less than Rs. 100</td>
+				<td>0</td>
+		  	<td>0</td>
+		  	<td>0</td>
+		  	<td>0</td>
+				</tr>
+				<tr>
+				<td>Issuer WDLTransaction (Micro ATM)</td>
+				<td>Rs. 100 and above</td>
+				<td>2</td>
+		  	<td>4500</td>
+		  	<td>20</td>
+		  	<td>3.6</td>
+				</tr>
+				
+
+			<tr></tr>
+			<tr><td colspan=4>Note:</td></tr>
+			<tr><td colspan=4></td></tr>
+			<tr><td colspan=4>1.The break-up of GST as CGST+S/UTGST or IGST would be availble in monthly NPCI Fee Invoice and monthly tax report for interchange fee.</td></tr>
+			<tr><td colspan=4></td></tr>
+			<tr><td colspan=4>2.Members are advised to record the trasactions on gross basis i.e. for Issuing and Acquiring transactions separately.</td></tr>
+			<tr><td colspan=4></td></tr>
+			<tr><td colspan=4>3.The interchange fee receiving members will have to raise invoices to paying members within the specified timelines as per GST rule.</td></tr>
+			
+		</table>
+		
+		
+		
+		
+		
+
+		
+	
+		
+		
+		
+
+
+	</body>
+</html>

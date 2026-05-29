@@ -29,4 +29,5 @@ urlpatterns = [
     path('mis/', include('mis_dashboard.urls')),
     path("imps-reconciliation/", include("imps_reconciliation.urls")),
     path("rgcs-reconciliation/", include("rgcs_reconciliation.urls")),
+    path("atm-settlement/", include("atm_settlement.urls")),
 ]

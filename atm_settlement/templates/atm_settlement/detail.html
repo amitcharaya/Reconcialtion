@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ATM Settlement Detail</title>
+</head>
+<body>
+
+<h2>ATM Settlement Detail</h2>
+
+<p><b>Date:</b> {{ cycle.settlement_date }}</p>
+<p><b>Cycle:</b> {{ cycle.cycle_no }}</p>
+<p><b>File:</b> {{ cycle.original_filename }}</p>
+
+<hr>
+
+<h3>Important Summary</h3>
+
+<table border="1" cellpadding="8">
+    <tr>
+        <th>Particular</th>
+        <th>Txn Count</th>
+        <th>Debit</th>
+        <th>Credit</th>
+    </tr>
+
+    {% for key, item in summary.items %}
+        {% if item %}
+        <tr>
+            <td>{{ item.description }}</td>
+            <td>{{ item.txn_count }}</td>
+            <td>{{ item.debit_amount }}</td>
+            <td>{{ item.credit_amount }}</td>
+        </tr>
+        {% endif %}
+    {% endfor %}
+</table>
+
+<hr>
+
+<h3>Cycle Totals</h3>
+
+<table border="1" cellpadding="8">
+    <tr>
+        <th>Issuer Sub Total</th>
+        <td>{{ cycle.issuer_sub_total }}</td>
+    </tr>
+    <tr>
+        <th>Acquirer Sub Total</th>
+        <td>{{ cycle.acquirer_sub_total }}</td>
+    </tr>
+    <tr>
+        <th>Settlement Amount</th>
+        <td>{{ cycle.settlement_amount }}</td>
+    </tr>
+    <tr>
+        <th>Net Adjusted Amount</th>
+        <td>{{ cycle.net_adjusted_amount }}</td>
+    </tr>
+    <tr>
+        <th>Final Settlement Amount</th>
+        <td>{{ cycle.final_settlement_amount }}</td>
+    </tr>
+</table>
+
+<hr>
+
+<h3>Full NTSL Settlement Rows</h3>
+
+<table border="1" cellpadding="8">
+    <tr>
+        <th>Description</th>
+        <th>No. of Txn</th>
+        <th>Debit</th>
+        <th>Credit</th>
+    </tr>
+
+    {% for item in items %}
+    <tr>
+        <td>{{ item.description }}</td>
+        <td>{{ item.txn_count }}</td>
+        <td>{{ item.debit_amount }}</td>
+        <td>{{ item.credit_amount }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<br>
+
+<a href="{% url 'atm_settlement_list' %}">Back to List</a>
+
+</body>
+</html>
