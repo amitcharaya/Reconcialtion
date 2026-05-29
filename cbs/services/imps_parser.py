@@ -143,11 +143,8 @@ def parse_cbs_imps_record(line, expected_file_type):
 
     parsed = {
 
-        "transaction_serial_number": validate_digits(
-            data["transaction_serial_number"],
-            "Transaction Serial Number",
-            12,
-        ),
+        "transaction_serial_number": data["transaction_serial_number"],
+
         "account_type": data["account_type"],
 
         "account_holder_name": validate_name(

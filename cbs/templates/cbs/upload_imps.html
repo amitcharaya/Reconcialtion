@@ -54,7 +54,10 @@
 {# Filter/upload form starts here. The form values are submitted to the Django view for validation and processing. #}
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-
+    <p>
+        <label><strong>Transaction Date:</strong></label><br>
+        {{ form.transaction_date }}
+    </p>
     <p>
       <label><strong>  Acquirer File:
           {{ form.acquirer_file }}</strong></label><br>

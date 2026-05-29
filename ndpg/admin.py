@@ -20,8 +20,10 @@ from .models import (
     NDPGIMPSRawUploadBatch,
     NDPGIMPSRawTransaction,
 )
+from import_export.admin import ImportExportModelAdmin
 
 admin.site.register(NDPGUploadBatch)
+
 
 @admin.register(NDPGATMTransaction)
 class NDPGATMTransactionAdmin(admin.ModelAdmin):
@@ -126,7 +128,7 @@ class RGCSUploadBatchAdmin(admin.ModelAdmin):
 
 
 @admin.register(RGCSRawTransaction)
-class RGCSRawTransactionAdmin(admin.ModelAdmin):
+class RGCSRawTransactionAdmin(ImportExportModelAdmin):
     list_display = (
         "transaction_date",
         "transaction_time",

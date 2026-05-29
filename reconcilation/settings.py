@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'disputes',
     'mis_dashboard',
     'imps_reconciliation',
-    'rgcs_reconciliation'
+    'rgcs_reconciliation',
+    'import_export',
 
 ]
 

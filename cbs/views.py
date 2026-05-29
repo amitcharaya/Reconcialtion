@@ -202,9 +202,11 @@ def upload_cbs_imps_files(request):
     error = None
 
     if request.method == "POST":
+
         form = CBSIMPSUploadForm(request.POST, request.FILES)
 
         if form.is_valid():
+
             acquirer_file = request.FILES["acquirer_file"]
             issuer_file = request.FILES["issuer_file"]
             onus_file = request.FILES["onus_file"]
@@ -216,8 +218,12 @@ def upload_cbs_imps_files(request):
                     onus_file=onus_file,
                 )
 
+
             except Exception as exc:
                 error = str(exc)
+        else:
+            print(form.errors)
+            print(form.non_field_errors())
 
     else:
         form = CBSIMPSUploadForm(initial={"transaction_date": request.GET.get("transaction_date")} if request.GET.get("transaction_date") else None)
