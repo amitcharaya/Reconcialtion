@@ -234,7 +234,8 @@ def reconcile_imps_transactions(transaction_date):
     switch_transactions = SwitchIMPSTransaction.objects.filter(
         transaction_datetime__date=transaction_date,
         transaction_amount__gt=0
-    ).exclude(id__in=processed_switch_ids)
+    ).exclude(id__in=processed_switch_ids).exclude(
+    transaction_particulars="NEFT transaction").exclude(status="Error").exclude(transaction_particulars="Within Bank Transfer")
 
     for switch_txn in switch_transactions:
         serial_no = normalize(switch_txn.rrn)

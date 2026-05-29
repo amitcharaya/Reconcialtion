@@ -221,6 +221,9 @@ def upload_ndpg_imps_raw_view(request):
 
             except Exception as exc:
                 error = str(exc)
+        else:
+            print(form.errors)
+            print(form.non_field_errors())
 
     else:
         form = NDPGIMPSRawUploadForm(initial={"upload_date": request.GET.get("transaction_date") or request.GET.get("upload_date")} if (request.GET.get("transaction_date") or request.GET.get("upload_date")) else None)

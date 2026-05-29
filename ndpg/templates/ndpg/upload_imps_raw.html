@@ -95,7 +95,10 @@ Professional template note:
     {# Filter/upload form starts here. The form values are submitted to the Django view for validation and processing. #}
 <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-
+        <p>
+        <label>Batch Date</label><br>
+        {{ form.upload_date }}
+    </p>
         <label>File Type</label>
         {{ form.file_type }}
 
