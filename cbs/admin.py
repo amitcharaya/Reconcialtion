@@ -11,12 +11,13 @@ Professional note:
 from django.contrib import admin
 from .models import CBSATMTransaction,UploadBatch,CBSIMPSTransaction,CBSIMPSUploadBatch
 # Register your models here.
+from import_export.admin import ImportExportModelAdmin
 
 
 admin.site.register(CBSIMPSTransaction)
 admin.site.register(CBSIMPSUploadBatch)
 @admin.register(CBSATMTransaction)
-class CBSATMTransactionAdmin(admin.ModelAdmin):
+class CBSATMTransactionAdmin(ImportExportModelAdmin):
     list_display = (
         "stan_no",
         "card_no",
@@ -93,7 +94,7 @@ class RGCSUploadBatchAdmin(admin.ModelAdmin):
 
 
 @admin.register(RGCSCBSTransaction)
-class RGCSCBSTransactionAdmin(admin.ModelAdmin):
+class RGCSCBSTransactionAdmin(ImportExportModelAdmin):
     list_display = (
         "transaction_date",
         "transaction_time",
