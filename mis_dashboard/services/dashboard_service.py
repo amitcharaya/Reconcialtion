@@ -225,12 +225,62 @@ class MISDashboardService:
         )
 
     @staticmethod
+    def get_issuer_withdrawal_amount(from_date=None, to_date=None):
+        """
+        Returns total Acquirer Withdrawal Amount for a given settlement date.
+        """
+
+        from atm_settlement.models import ATMSettlementCycle, ATMSettlementItem
+
+        # Step 1: Get all cycles for the given date
+        cycles = ATMSettlementCycle.objects.filter(settlement_date__gte=from_date, settlement_date__lte=to_date)
+
+        if not cycles.exists():
+            return Decimal("0.00")
+
+        # Step 2: Filter settlement items for Acquirer Withdrawal
+        result = ATMSettlementItem.objects.filter(
+            settlement_cycle__in=cycles,
+            description__icontains="Issuer WDL Transaction Amount",
+        ).aggregate(
+            total_amount=Sum("debit_amount")  # withdrawal is usually debit
+        )
+
+        return result["total_amount"] or Decimal("0.00")
+
+
+    @staticmethod
+    def get_acquirer_withdrawal_amount(from_date=None, to_date=None):
+        """
+        Returns total Acquirer Withdrawal Amount for a given settlement date.
+        """
+
+        from atm_settlement.models import ATMSettlementCycle, ATMSettlementItem
+
+        # Step 1: Get all cycles for the given date
+        cycles = ATMSettlementCycle.objects.filter(settlement_date__gte=from_date,settlement_date__lte=to_date)
+
+        if not cycles.exists():
+            return Decimal("0.00")
+
+        # Step 2: Filter settlement items for Acquirer Withdrawal
+        result = ATMSettlementItem.objects.filter(
+            settlement_cycle__in=cycles,
+            description__icontains="Acquirer WDL Transaction Amount",
+        ).aggregate(
+            total_amount=Sum("credit_amount")  # withdrawal is usually credit
+        )
+
+        return result["total_amount"] or Decimal("0.00")
+
+    @staticmethod
     def source_financial_summary(from_date=None, to_date=None):
 
         cbs_qs = MISDashboardService.get_cbs_qs(from_date, to_date)
         ndpg_qs = MISDashboardService.get_ndpg_qs(from_date, to_date)
         switch_qs = MISDashboardService.get_switch_qs(from_date, to_date)
-
+        acquirer_wdl_amount=MISDashboardService.get_acquirer_withdrawal_amount(from_date,to_date)
+        issuer_wdl_amount=MISDashboardService.get_issuer_withdrawal_amount(from_date,to_date)
         def cbs_summary(file_type):
             debit = MISDashboardService.safe_sum(
                 cbs_qs.filter(
@@ -331,6 +381,8 @@ class MISDashboardService:
 
         switch_total_net = switch_total_success - switch_total_reversal
 
+
+
         return {
             "cbs": {
                 "acquirer": cbs_acquirer,
@@ -382,6 +434,10 @@ class MISDashboardService:
                     - switch_onus_net
                 ),
             },
+            "ntsl":{
+                "acquirer": acquirer_wdl_amount,
+                "issuer": issuer_wdl_amount,
+            }
         }
 
 class MISDashboardFilterService:

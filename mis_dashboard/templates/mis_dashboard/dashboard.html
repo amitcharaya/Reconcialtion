@@ -343,6 +343,7 @@ Professional template note:
                 <th>CBS Net Amount</th>
                 <th>NDPG / Switch Amount</th>
                 <th>Difference</th>
+                <th>NTSL</th>
             </tr>
         </thead>
 
@@ -352,6 +353,7 @@ Professional template note:
                 <td>₹ {{ source_financial_summary.cbs.acquirer.net|default:0 }}</td>
                 <td>₹ {{ source_financial_summary.ndpg.acquirer|default:0 }}</td>
                 <td>₹ {{ source_financial_summary.difference.cbs_ndpg_acquirer|default:0 }}</td>
+                <td>₹ {{ source_financial_summary.ntsl.acquirer|default:0 }}</td>
             </tr>
 
             <tr>
@@ -359,6 +361,7 @@ Professional template note:
                 <td>₹ {{ source_financial_summary.cbs.issuer.net|default:0 }}</td>
                 <td>₹ {{ source_financial_summary.ndpg.issuer|default:0 }}</td>
                 <td>₹ {{ source_financial_summary.difference.cbs_ndpg_issuer|default:0 }}</td>
+                <td>₹ {{ source_financial_summary.ntsl.issuer|default:0 }}</td>
             </tr>
 
             <tr>
