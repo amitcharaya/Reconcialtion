@@ -18,23 +18,33 @@ GL_TYPE_CHOICES = (
     ("NPCI_GST", "NPCI Switching Fee GST"),
     ("SETTLEMENT", "Settlement"),
 )
-
+TRX_TYPE_CHOICES = (
+    ("ACQUIRER", "Acquirer"),
+    ("ISSUER", "Issuer"),
+)
 class GLAccount(models.Model):
     name = models.CharField(max_length=100)
     gl_code = models.CharField(max_length=20, unique=True)
     product = models.CharField(max_length=10, choices=PRODUCT_CHOICES)
     gl_type = models.CharField(max_length=20, choices=GL_TYPE_CHOICES)
-
+    is_active = models.BooleanField(default=True)
     def __str__(self):
         return f"{self.product} - {self.gl_type} ({self.gl_code})"
 
-from decimal import Decimal
-from django.db import models
+class GLOpeningBalance(models.Model):
+    gl_account = models.ForeignKey(GLAccount, on_delete=models.CASCADE)
+    opening_date = models.DateField()
+    opening_balance = models.DecimalField(max_digits=18, decimal_places=2)
+
+    class Meta:
+        unique_together = ("gl_account", "opening_date")
+
 
 class GLDailyBalance(models.Model):
     gl_account = models.ForeignKey(GLAccount, on_delete=models.CASCADE)
     balance_date = models.DateField()
-
+    txn_type = models.CharField(max_length=20,choices=TRX_TYPE_CHOICES)
+    # values: 'ACQUIRER', 'ISSUER'
     opening_balance = models.DecimalField(max_digits=18, decimal_places=2, default=Decimal("0.00"))
 
     debit_during_the_day = models.DecimalField(max_digits=18, decimal_places=2, default=Decimal("0.00"))
@@ -48,8 +58,8 @@ class GLDailyBalance(models.Model):
     def save(self, *args, **kwargs):
         self.closing_balance = (
             self.opening_balance
-            + self.credit_during_the_day
-            - self.debit_during_the_day
+            - self.credit_during_the_day
+            + self.debit_during_the_day
         )
         super().save(*args, **kwargs)
 

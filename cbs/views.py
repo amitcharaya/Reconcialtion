@@ -5,7 +5,10 @@ View/controller logic for the cbs application. Views receive HTTP requests, call
 """
 import os
 import django
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'reconcilation.settings')
+
+from gl_recon.forms import GLOpeningBalanceForm
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Recon.settings')
 django.setup()
 
 from django.shortcuts import render
@@ -18,7 +21,7 @@ from .models import CBSATMTransaction,UploadBatch
 from django.db import transaction
 from .validator import validate_cbs_record
 from reconciliation.utils import normalize_date
-
+from django.shortcuts import redirect
 
 from cbs.services.imps_importer import import_cbs_imps_files
 from datetime import date
@@ -28,8 +31,9 @@ from .forms import RGCSCBSUploadForm
 from .models import RGCSUploadBatch, RGCSCBSTransaction
 from .services.rgcs.parser import parse_rgcs_cbs_record
 from .services.rgcs.validator import validate_rgcs_cbs_record
-
-
+from gl_recon.services.gl_control_service import validate_gl_mapping
+from .services.cbs_aggregators import cbs_summary
+from gl_recon.services.gl_control_service import update_gl_balances
 """
  
 """
@@ -113,6 +117,18 @@ def upload_cbs_files(request):
         form = CBSUploadForm(request.POST, request.FILES)
 
         if form.is_valid():
+
+            # ✅ STEP 1: Validate GL BEFORE upload
+            validation = validate_gl_mapping(
+                product="ATM",
+                txn_type="WITHDRAWAL",
+                date=selected_date,
+                request=request
+            )
+
+            if not validation["status"]:
+                return redirect(validation["redirect"])
+            gl=validation['gl']
             selected_date = normalize_date(form.cleaned_data["transaction_date"])
             # check if files for the date are already uploaded
             if UploadBatch.objects.filter(batch_date=selected_date, upload_status="SUCCESS").exists():
@@ -179,8 +195,11 @@ def upload_cbs_files(request):
                             remarks="CBS ATM files uploaded successfully.",
                         )
                         for record in all_records:
+                            print(record)
                             CBSATMTransaction.objects.create(batch=batch, **record)
-
+                        acquirer = cbs_summary(selected_date, "A")
+                        issuer = cbs_summary(selected_date, "I")
+                        update_gl_balances(selected_date, acquirer, issuer, gl)
                     summary = {
                         "status": "success",
                         "message": "All CBS files uploaded and saved successfully.",

@@ -1,56 +1,46 @@
-from .services.gl_reconciliation_services import run_gl_reconciliation
+from django.shortcuts import render, redirect
+from .forms import GLAccountForm
 
 
-def dashboard(request):
-    from datetime import date
+def create_gl(request):
+    next_url = request.GET.get("next")
 
-    data = run_gl_reconciliation(date.today())
+    if request.method == "POST":
+        form = GLAccountForm(request.POST)
+        if form.is_valid():
+            gl = form.save()
 
-    return render(request, "dashboard.html", {
-        "gl_data": data
-    })
+            return redirect(f"/gl/opening/?gl_id={gl.id}&next={next_url}")
 
-from datetime import datetime
-from django.shortcuts import render
-from django.http import JsonResponse
-
-
-
-
-def gl_reconciliation_view(request):
-    """
-    HTML Dashboard View
-    URL: /gl-reconciliation/
-    """
-
-    date_str = request.GET.get("date")
-
-    if date_str:
-        settlement_date = datetime.strptime(date_str, "%Y-%m-%d").date()
     else:
-        from datetime import date
-        settlement_date = date.today()
+        form = GLAccountForm()
 
-    data = run_gl_reconciliation(settlement_date)
+    return render(request, "gl_recon/create_gl.html", {"form": form})
 
-    return render(request, "dashboard.html", {
-        "gl_data": data
+from .forms import GLOpeningBalanceForm
+from .models import GLAccount
+
+
+def set_opening_balance(request):
+    gl_id = request.GET.get("gl_id")
+    next_url = request.GET.get("next")
+
+    gl = GLAccount.objects.get(id=gl_id)
+
+    if request.method == "POST":
+        form = GLOpeningBalanceForm(request.POST)
+        if form.is_valid():
+            opening = form.save(commit=False)
+            opening.gl_account = gl
+            opening.save()
+
+            # ✅ Redirect back to original page
+            return redirect(next_url or "/")
+
+    else:
+        form = GLOpeningBalanceForm()
+
+    return render(request, "gl_recon/opening_balance.html", {
+        "form": form,
+        "gl": gl
     })
-
-
-def gl_reconciliation_api(request):
-    """
-    API View (for AJAX / future React dashboard)
-    URL: /api/gl-reconciliation/
-    """
-
-    date_str = request.GET.get("date")
-
-    if not date_str:
-        return JsonResponse({"error": "date parameter required"}, status=400)
-
-    settlement_date = datetime.strptime(date_str, "%Y-%m-%d").date()
-
-    data = run_gl_reconciliation(settlement_date)
-
-    return JsonResponse(data, safe=False)

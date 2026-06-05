@@ -84,7 +84,7 @@ class CBSATMTransaction(models.Model):
     # Date and Time
     txn_date = models.DateField()
     txn_time = models.CharField(max_length=6)
-    settlement_date = models.CharField(max_length=6, blank=True, null=True)
+    settlement_date = models.DateField()
     settlement_time = models.CharField( max_length=6,blank=True,null=True)
     # ATM Layer
     atm_id = models.CharField(max_length=8)

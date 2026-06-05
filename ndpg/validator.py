@@ -1,5 +1,5 @@
 import os, django
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'reconcilation.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Recon.settings')
 django.setup()
 
 from .models import NDPGATMTransaction
