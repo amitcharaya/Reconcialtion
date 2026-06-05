@@ -43,7 +43,7 @@ class ATMDisputeCase(models.Model):
     )
 
     dispute_reason = models.CharField(
-        max_length=150,
+        max_length=250,
         blank=True,
         null=True
     )

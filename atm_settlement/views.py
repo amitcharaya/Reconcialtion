@@ -7,6 +7,8 @@ from .services.parser import validate_atm_ntsl_filename, parse_atm_ntsl_file
 
 
 # atm_settlement/views.py
+from gl_recon.services.gl_control_service import validate_gl_mapping
+
 
 def upload_atm_settlement(request):
     if request.method == "POST":
@@ -14,7 +16,20 @@ def upload_atm_settlement(request):
 
         if form.is_valid():
             settlement_files = request.FILES.getlist("settlement_files")
+            settlement_date, cycle_no = validate_atm_ntsl_filename(settlement_files[0].name)
+            validation = validate_gl_mapping(
+                product="ATM",
+                txn_type="SETTLEMENT",
+                date=settlement_date,
+                request=request
+            )
 
+            # ❌ If validation fails → redirect
+            if not validation["status"]:
+                return redirect(validation["redirect"])
+
+            # ✔ If success → get GL
+            gl = validation["gl"]
             if len(settlement_files) != 4:
                 messages.error(request, "Please upload exactly 4 ATM NTSL cycle files.")
                 return redirect("upload_atm_settlement")
@@ -23,8 +38,8 @@ def upload_atm_settlement(request):
 
             for settlement_file in settlement_files:
                 try:
-                    settlement_date, cycle_no = validate_atm_ntsl_filename(settlement_file.name)
 
+                    settlement_date, cycle_no = validate_atm_ntsl_filename(settlement_file.name)
                     if ATMSettlementCycle.objects.filter(
                         settlement_date=settlement_date,
                         cycle_no=cycle_no

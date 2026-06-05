@@ -65,18 +65,14 @@ class NDPGATMTransaction(models.Model):
     transaction_time = models.CharField(max_length=6)
 
     merchant_category_code = models.CharField(max_length=4)
-    card_acceptor_settlement_date = models.CharField(max_length=6)
+    card_acceptor_settlement_date = models.DateField()
     card_acceptor_id = models.CharField(max_length=15)
     card_acceptor_terminal_id = models.CharField(max_length=8)
     card_acceptor_terminal_location = models.CharField(max_length=36)
 
     acquirer_id = models.CharField(max_length=15)
 
-    acquirer_settlement_date = models.CharField(
-        max_length=6,
-        blank=True,
-        null=True
-    )
+    acquirer_settlement_date = models.DateField(blank=True,null=True)
 
     network_id = models.CharField(
         max_length=3,
