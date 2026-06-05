@@ -49,7 +49,8 @@ INSTALLED_APPS = [
     'imps_reconciliation',
     'rgcs_reconciliation',
     'import_export',
-    'atm_settlement'
+    'atm_settlement',
+    'gl_recon'
 
 ]
 

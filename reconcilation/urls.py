@@ -30,4 +30,5 @@ urlpatterns = [
     path("imps-reconciliation/", include("imps_reconciliation.urls")),
     path("rgcs-reconciliation/", include("rgcs_reconciliation.urls")),
     path("atm-settlement/", include("atm_settlement.urls")),
+    path("gl/", include("gl_recon.urls")),
 ]
