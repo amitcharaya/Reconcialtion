@@ -19,6 +19,7 @@ from django.urls import path, include
 from mis_dashboard.views import home_page
 
 urlpatterns = [
+    # display home page form mis_dashboard
     path("", home_page, name="home"),
     path('admin/', admin.site.urls),
     path('', include('cbs.urls')),

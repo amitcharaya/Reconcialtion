@@ -53,7 +53,7 @@ class GLDailyBalance(models.Model):
     closing_balance = models.DecimalField(max_digits=18, decimal_places=2, default=Decimal("0.00"))
 
     class Meta:
-        unique_together = ("gl_account", "balance_date")
+        unique_together = ("gl_account", "balance_date","txn_type")
 
     def save(self, *args, **kwargs):
         self.closing_balance = (

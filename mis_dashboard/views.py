@@ -530,11 +530,12 @@ from .services.upload_workflow_service import UploadWorkflowService
 
 
 def home_page(request):
-    selected_date = request.GET.get("transaction_date") or request.GET.get("date") or date.today().isoformat()
 
-    workflows = UploadWorkflowService.build(selected_date)
+   selected_date = request.GET.get("transaction_date") or request.GET.get("date") or date.today().isoformat()
 
-    return render(
+   workflows = UploadWorkflowService.build(selected_date)
+
+   return render(
         request,
         "mis_dashboard/home.html",
         {

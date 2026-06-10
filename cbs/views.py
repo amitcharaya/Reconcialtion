@@ -195,10 +195,11 @@ def upload_cbs_files(request):
                             remarks="CBS ATM files uploaded successfully.",
                         )
                         for record in all_records:
-                            print(record)
+
                             CBSATMTransaction.objects.create(batch=batch, **record)
                         acquirer = cbs_summary(selected_date, "A")
                         issuer = cbs_summary(selected_date, "I")
+
                         update_gl_balances(selected_date, acquirer, issuer, gl)
                     summary = {
                         "status": "success",

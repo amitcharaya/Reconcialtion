@@ -44,10 +44,25 @@ def update_gl_balances(txn_date,acquirer,issuer,gl):
         )
 
         obj.opening_balance = opening
-        obj.debit_during_the_day = acquirer["debit"]-acquirer["credit"]
-        obj.credit_during_the_day = issuer["debit"]-issuer["credit"]
+        obj.debit_during_the_day = acquirer["debit"]
+        obj.credit_during_the_day= acquirer["credit"]
+        obj.txn_type="ACQUIRER"
         obj.save()
+        print(obj)
+        opening = opening + acquirer["net"]
+        obj = GLDailyBalance.objects.create(
+            gl_account=gl,
+            balance_date=txn_date,
+           opening_balance= opening
+        )
 
+
+        obj.opening_balance = opening
+        obj.debit_during_the_day =  issuer["credit"]
+        obj.credit_during_the_day = issuer["debit"]
+        obj.txn_type = "ISSUER"
+        obj.save()
+        print(obj)
 
 
 def validate_gl_mapping(product, txn_type, date, request):
